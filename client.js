@@ -282,7 +282,7 @@ try {
             if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "Round") return;
             Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
             is_planted.Value = true;
-            mainTimer.Restart(BombTime);
+            main_timer.Restart(BombTime);
             timer.Player.Properties.Scores.Value += DefaultBountyForPlant;
             timer.Player.Properties.Get("bomb").Value = false;
             area.Tags.Remove("_plant");
@@ -299,7 +299,7 @@ try {
         }
     });
 
-    mainTimer.OnTimer.Add(function () {
+    main_timer.OnTimer.Add(function () {
         switch (state.Value) {
             case "Loading":
                 StartWarmup();
