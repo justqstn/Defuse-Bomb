@@ -360,14 +360,14 @@ try {
     }
 
     function InitAreas() {
-        AddArea(["main"], "main", toFixedRGB(255, 32, 0));
-        AddArea(["secondary"], "secondary", toFixedRGB(255, 255, 0));
-        AddArea(["explosive"], "explosive", toFixedRGB(0, 255, 179));
-        AddArea(["bomb"], "bomb", toFixedRGB(255, 0, 255));
-        AddArea(["defkit"], "defkit", toFixedRGB(255, 0, 255));
-        AddArea(["armour"], "armour", toFixedRGB(128, 96, 255));
-        AddArea(["_plant"], "plant", toFixedRGB(0, 255, 0));
-        AddArea(["defuse"], "defuse", toFixedRGB(255, 0, 0));
+        AddArea(["main"], "main", rgb(255, 32, 0));
+        AddArea(["secondary"], "secondary", rgb(255, 255, 0));
+        AddArea(["explosive"], "explosive", rgb(0, 255, 179));
+        AddArea(["bomb"], "bomb", rgb(255, 0, 255));
+        AddArea(["defkit"], "defkit", rgb(255, 0, 255));
+        AddArea(["armour"], "armour", rgb(128, 96, 255));
+        AddArea(["_plant"], "plant", rgb(0, 255, 0));
+        AddArea(["defuse"], "defuse", rgb(255, 0, 0));
     }
 
     function AreasEnable(v) {
