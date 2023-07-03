@@ -1,1 +1,24 @@
-
+{
+  "Name": "Закладка Бомбы",
+  "Description": "Режим от just_qstn",
+  "StartClientVersion": 334,
+  "MapFilter": {
+    "IsBlank": false,
+    "HasParcourEnd": false
+  },
+  "MapLists": [
+    {
+      "MapListId": 8360,
+      "Name": "Карты закладки бомбы"
+    }
+  ],
+  "Parameters": {
+    "Bool": [
+      {
+        "Name": "TestMode",
+        "DisplayName": "Тестовый режим",
+        "Default": false
+      }
+    ]
+  }
+}
