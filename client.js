@@ -396,31 +396,33 @@ try {
     }
 
     function StartWarmup() {
-        state.Value = "warmup";
-        let plant_areas = AreaService.GetByTag("plant");
-        msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
-        for (indx in plant_areas) {
-            let a = plant_areas[indx];
-            let e = a.Ranges.GetEnumerator();
-            while (e.moveNext()) {
-                let range = e.Current;
-                const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
-                let rnd_name = "";
-                for (let i = 0; i < 6; i++) {
-                    rnd_name += letters[GetRandom(0, letters.length - 1)];
+        try {
+            state.Value = "warmup";
+            let plant_areas = AreaService.GetByTag("plant");
+            msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
+            for (indx in plant_areas) {
+                let a = plant_areas[indx];
+                let e = a.Ranges.GetEnumerator();
+                while (e.moveNext()) {
+                    let range = e.Current;
+                    const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
+                    let rnd_name = "";
+                    for (let i = 0; i < 6; i++) {
+                        rnd_name += letters[GetRandom(0, letters.length - 1)];
+                    }
+                    AreaService.Get(rnd_name).Tags.Add("_plant");
+                    AreaService.Get(rnd_name).Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
                 }
-                AreaService.Get(rnd_name).Tags.Add("_plant");
-                AreaService.Get(rnd_name).Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
+                a.Tags.Clear();
+                a.Ranges.Clear();
             }
-            a.Tags.Clear();
-            a.Ranges.Clear();
-        }
-        Damage.GetContext().DamageIn.Value = true;
-        Properties.GetContext().Get("addedBomb").Value = false;
-        Spawns.GetContext().RespawnEnable = true;
-        SpawnTeams();
-        Ui.GetContext().Hint.Value = "Разминка";
-        main_timer.Restart(WARMUP_TIME);
+            Damage.GetContext().DamageIn.Value = true;
+            Properties.GetContext().Get("addedBomb").Value = false;
+            Spawns.GetContext().RespawnEnable = true;
+            SpawnTeams();
+            Ui.GetContext().Hint.Value = "Разминка";
+            main_timer.Restart(WARMUP_TIME);
+        } catch (e) { msg.Show(e.name + " " + e.message) }
     }
 
     function WaitingRound() {
