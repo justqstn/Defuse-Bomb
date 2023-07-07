@@ -1,4 +1,4 @@
-try {
+\try {
     // Закладка бомбы от just_qstn
     // v1
 
@@ -7,7 +7,7 @@ try {
 
 
     // Константы
-    const ROUNDS = 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = 30, ROUND_TIME = 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+    const ROUNDS = 30, LOADING_TIME = 10, WARMUP_TIME = 90, PRE_ROUND_TIME = 30, ROUND_TIME = 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
         SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250;
 
     // Переменные
@@ -111,7 +111,7 @@ try {
     Damage.OnKill.Add(function (p, _k) {
         if (_k.Team != null && _k.Team != p.Team) {
             ++p.Properties.Kills.Value;
-            p.Properties.Scores.Value += DefaultBountyForKill;
+            p.Properties.Scores.Value += BOUNTY_KILL;
         }
     });
 
@@ -372,6 +372,7 @@ try {
         AddArea(["armour"], "armour", rgb(128, 96, 255));
         AddArea(["_plant"], "plant", rgb(0, 255, 0));
         AddArea(["defuse"], "defuse", rgb(255, 0, 0));
+        AddArea(["helmet"], "helmet", rgb(0, 255, 0));
     }
 
     function AreasEnable(v) {
@@ -381,6 +382,7 @@ try {
         AreaViewService.GetContext().Get("defkit").Enable = v;
         AreaViewService.GetContext().Get("spawn").Enable = v;
         AreaViewService.GetContext().Get("armour").Enable = v;
+        AreaViewService.GetContext().Get("helmet").Enable = v;
     }
 
     function SpawnTeams() {
@@ -395,6 +397,7 @@ try {
     function StartGame() {
         Spawns.GetContext().RespawnEnable = false;
         Ui.GetContext().Hint.Value = "Загрузка режима";
+        AreasEnable(false)
         main_timer.Restart(LOADING_TIME);
         InitAreas();
     }
@@ -428,13 +431,12 @@ try {
     }
 
     function WaitingRound() {
-        if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
+        //if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         TeamsBalancer.IsAutoBalance = true;
         Damage.GetContext().DamageIn.Value = false;
         state.Value = "waiting";
-        Spawns.GetContext().RespawnEnable = true;
         SpawnTeams();
         Ui.GetContext().Hint.Value = "Покупайте оружиe";
         main_timer.Restart(PRE_ROUND_TIME);
@@ -477,14 +479,14 @@ try {
         Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
         var e = Players.GetEnumerator();
         while (e.moveNext()) {
-            Properties.GetContext(e.Current).Scores.Value += e.Current.t == t ? DefaultBountyForWin : DefaultBountyForLose + (DefaultBonusForLose * aTeam.Properties.Get("loses").Value);
+            Properties.GetContext(e.Current).Scores.Value += e.Current.t == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
         }
         t.Properties.Get("wins").Value++;
         t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
-        if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 1;
+        if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
         aTeam.Properties.Get("loses").Value++;
 
-        if (rounds.Value >= Rounds + 1) EndGame();
+        if (rounds.Value >= ROUNDS + 1) EndGame();
     }
 
     function EndGame() {
