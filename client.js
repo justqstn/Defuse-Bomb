@@ -97,14 +97,15 @@ try {
 
     Damage.OnDeath.Add(function (p) {
         p.Properties.Deaths.Value++;
-        if (state.Value == "warmup") return;
-        p.Properties.Get("defkit").Value = false;
-        p.Properties.Get("bomb").Value = false;
+        if (state.Value != "warmup") {
+            p.Properties.Get("defkit").Value = false;
+            p.Properties.Get("bomb").Value = false;
 
-        p.Inventory.Main.Value = false;
-        p.Inventory.Secondary.Value = false;
-        p.Inventory.Explosive.Value = false;
-        p.contextedProperties.MaxHp.Value = 100;
+            p.Inventory.Main.Value = false;
+            p.Inventory.Secondary.Value = false;
+            p.Inventory.Explosive.Value = false;
+            p.contextedProperties.MaxHp.Value = 100;
+        }
     });
 
     Damage.OnKill.Add(function (p, _k) {
