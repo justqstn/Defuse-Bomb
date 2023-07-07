@@ -232,15 +232,18 @@ try {
     bomb_trigger.OnEnter.Add(function (p) {
         if (p.Team == ct_team) return;
         if (bomb.Value) {
-            if (p.Properties.Get("bomb").Value) return p.Ui.Hint.Value
+            if (p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "Бомба уже положена"
             p.Properties.Get("bomb").Value = true;
             bomb.Value = false;
             p.Ui.Hint.Value = "Вы взяли бомбу";
         }
         else {
-            p.Properties.Get("bomb").Value = true;
-            bomb.Value = false;
-            p.Ui.Hint.Value = "Вы взяли бомбу";
+            if (p.Properties.Get("bomb").Value) {
+                p.Properties.Get("bomb").Value = false;
+                bomb.Value = true;
+                p.Ui.Hint.Value = "Вы положили бомбу";
+            }
+            p.Ui.Hint.Value = "Бомбы нету!";
         }
     });
 
@@ -424,7 +427,7 @@ try {
     }
 
     function WaitingRound() {
-        if (Players.Count == 1) return main_timer.Restart(WARMUP_TIME);
+        if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         infTimer.Restart(2);
