@@ -8,7 +8,7 @@ try {
 
     // Константы
     const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 1 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
-        SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
+        SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
     // Переменные
     let state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
@@ -27,13 +27,12 @@ try {
     // Создание команд
     Teams.Add("t", "<i><B><size=38>Т</size><size=30>еррористы</size></B>\nзакладка бомбы от just_qstn</i>", rgb(210, 150, 70));
     Teams.Add("ct", "<i><B><size=38>С</size><size=30>пецназ</size></B>\nзакладка бомбы от just_qstn</i>", rgb(70, 145, 210));
-    let t_team = Teams.Get("t");
-    let ct_team = Teams.Get("ct");
+    let t_team = Teams.Get("t"), ct_team = Teams.Get("ct");
     t_team.Spawns.SpawnPointsGroups.Add(2);
     ct_team.Spawns.SpawnPointsGroups.Add(1);
 
     Teams.OnAddTeam.Add(function (t) {
-        t.Properties.Get("loses").Value = 1;
+        t.Properties.Get("loses").Value = 0;
         t.Properties.Get("wins").Value = 0;
     });
 
@@ -304,7 +303,7 @@ try {
     // Таймеры
     Timers.OnPlayerTimer.Add(function (timer) {
         try {
-            if (timer.Id == "plant") {
+            if (timer.Id.slice(0, 5) == "plant") {
                 const area = AreaService.Get(timer.Id.replace("plant", ""));
                 if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
                 Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
@@ -492,25 +491,27 @@ try {
     }
 
     function EndRound(t) {
-        Damage.GetContext().DamageIn.Value = false;
-        Properties.GetContext().Get("addedBomb").Value = false;
-        state.Value = "end_round";
-        is_planted.Value = false;
-        main_timer.Restart(AFTER_ROUND_TIME);
-        round.Value++;
-        var aTeam = anotherTeam(t);
+        try {
+            Damage.GetContext().DamageIn.Value = false;
+            Properties.GetContext().Get("addedBomb").Value = false;
+            state.Value = "end_round";
+            is_planted.Value = false;
+            main_timer.Restart(AFTER_ROUND_TIME);
+            round.Value++;
+            var aTeam = anotherTeam(t);
 
-        Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
-        var e = Players.GetEnumerator();
-        while (e.moveNext()) {
-            Properties.GetContext(e.Current).Scores.Value += e.Current.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
-        }
-        t.Properties.Get("wins").Value++;
-        t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
-        if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
-        aTeam.Properties.Get("loses").Value++;
+            Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
+            var e = Players.GetEnumerator();
+            while (e.moveNext()) {
+                Properties.GetContext(e.Current).Scores.Value += e.Current.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
+            }
+            t.Properties.Get("wins").Value++;
+            t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
+            if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
+            aTeam.Properties.Get("loses").Value++;
 
-        if (round.Value >= ROUNDS + 1) EndGame();
+            if (round.Value >= ROUNDS + 1) EndGame();
+        } catch (e) { msg.Show(e.name + " " + e.message); }
     }
 
     function EndGame() {
