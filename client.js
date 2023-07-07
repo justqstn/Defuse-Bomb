@@ -7,7 +7,7 @@ try {
 
 
     // Константы
-    const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 1 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+    const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 1 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
         SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
     // Переменные
@@ -309,7 +309,7 @@ try {
                 if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
                 Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
                 is_planted.Value = true;
-                main_timer.Restart(BombTime);
+                main_timer.Restart(BEFORE_PLANTING_TIME);
                 timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
                 timer.Player.Properties.Get("bomb").Value = false;
                 area.Tags.Remove("_plant");
