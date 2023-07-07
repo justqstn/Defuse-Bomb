@@ -1,4 +1,3 @@
-
 // Закладка бомбы от just_qstn
 // v1
 // All rights reversed - все права защищены
