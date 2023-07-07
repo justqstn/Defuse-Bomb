@@ -98,7 +98,7 @@ Players.OnPlayerDisconnected.Add(function () {
 });
 
 Damage.OnDeath.Add(function (p) {
-    if (state.Value != "round") {
+    if (state.Value == "round") {
         p.Properties.Deaths.Value++;
         p.Properties.Get("defkit").Value = false;
         p.Properties.Get("bomb").Value = false;
@@ -111,7 +111,7 @@ Damage.OnDeath.Add(function (p) {
 });
 
 Damage.OnKill.Add(function (p, _k) {
-    if (state.Value != "round") {
+    if (state.Value == "round") {
         if (_k.Team != null && _k.Team != p.Team) {
             ++p.Properties.Kills.Value;
             p.Properties.Scores.Value += BOUNTY_KILL;
