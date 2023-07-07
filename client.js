@@ -111,7 +111,7 @@ try {
     Damage.OnKill.Add(function (p, _k) {
         if (_k.Team != null && _k.Team != p.Team) {
             ++p.Properties.Kills.Value;
-            p.Properties.Scores.Value += DefaultBountyForKill;
+            p.Properties.Scores.Value += BOUNTY_KILL;
         }
     });
 
@@ -372,6 +372,7 @@ try {
         AddArea(["armour"], "armour", rgb(128, 96, 255));
         AddArea(["_plant"], "plant", rgb(0, 255, 0));
         AddArea(["defuse"], "defuse", rgb(255, 0, 0));
+        AddArea(["helmet"], "helmet", rgb(0, 255, 0));
     }
 
     function AreasEnable(v) {
@@ -381,6 +382,7 @@ try {
         AreaViewService.GetContext().Get("defkit").Enable = v;
         AreaViewService.GetContext().Get("spawn").Enable = v;
         AreaViewService.GetContext().Get("armour").Enable = v;
+        AreaViewService.GetContext().Get("helmet").Enable = v;
     }
 
     function SpawnTeams() {
@@ -395,6 +397,7 @@ try {
     function StartGame() {
         Spawns.GetContext().RespawnEnable = false;
         Ui.GetContext().Hint.Value = "Загрузка режима";
+        AreasEnable(false);
         main_timer.Restart(LOADING_TIME);
         InitAreas();
     }
@@ -434,7 +437,6 @@ try {
         TeamsBalancer.IsAutoBalance = true;
         Damage.GetContext().DamageIn.Value = false;
         state.Value = "waiting";
-        Spawns.GetContext().RespawnEnable = true;
         SpawnTeams();
         Ui.GetContext().Hint.Value = "Покупайте оружиe";
         main_timer.Restart(PRE_ROUND_TIME);
@@ -477,14 +479,14 @@ try {
         Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
         var e = Players.GetEnumerator();
         while (e.moveNext()) {
-            Properties.GetContext(e.Current).Scores.Value += e.Current.t == t ? DefaultBountyForWin : DefaultBountyForLose + (DefaultBonusForLose * aTeam.Properties.Get("loses").Value);
+            Properties.GetContext(e.Current).Scores.Value += e.Current.t == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
         }
         t.Properties.Get("wins").Value++;
         t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
-        if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 1;
+        if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
         aTeam.Properties.Get("loses").Value++;
 
-        if (rounds.Value >= Rounds + 1) EndGame();
+        if (rounds.Value >= ROUNDS + 1) EndGame();
     }
 
     function EndGame() {
