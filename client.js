@@ -301,23 +301,23 @@ try {
 
     main_timer.OnTimer.Add(function () {
         switch (state.Value) {
-            case "Loading":
+            case "loading":
                 StartWarmup();
                 break;
-            case "Warmup":
+            case "warmup":
                 WaitingRound();
                 break;
-            case "Waiting":
+            case "waiting":
                 StartRound();
                 break;
-            case "Round":
+            case "round":
                 if (is_planted.Value) EndRound(t_team);
                 else EndRound(ct_team);
                 break
-            case "EndRound":
+            case "end_round":
                 if (!is_planted.Value) WaitingRound();
                 break
-            case "EndGame":
+            case "end_game":
                 Game.RestartGame();
                 break;
         }
@@ -430,7 +430,7 @@ try {
         infTimer.Restart(2);
         TeamsBalancer.IsAutoBalance = true;
         Damage.GetContext().DamageIn.Value = false;
-        state.Value = "Waiting";
+        state.Value = "waiting";
         Spawns.GetContext().RespawnEnable = true;
         SpawnTeams();
         Ui.GetContext().Hint.Value = "Покупайте оружиe";
@@ -465,7 +465,7 @@ try {
     function EndRound(t) {
         Damage.GetContext().DamageIn.Value = false;
         Properties.GetContext().Get("addedBomb").Value = false;
-        state.Value = "EndRound";
+        state.Value = "end_round";
         is_planted.Value = false;
         main_timer.Restart(AFTER_ROUND_TIME);
         round.Value++;
@@ -487,7 +487,7 @@ try {
     function EndGame() {
         const winner = ct_team.Properties.Get("wins").Value > t_team.Properties.Get("wins").Value ? ct_team : t_team;
         Game.GameOver(winner);
-        state.Value = "EndGame";
+        state.Value = "end_game";
         main_timer.Restart(END_TIME);
     }
 } catch (e) { Validate.ReportInvalid(e.name + " " + e.message); }
