@@ -7,7 +7,7 @@ try {
 
 
     // Константы
-    const ROUNDS = 30, LOADING_TIME = 10, WARMUP_TIME = 90, PRE_ROUND_TIME = 30, ROUND_TIME = 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+    const ROUNDS = 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = 30, ROUND_TIME = 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
         SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250;
 
     // Переменные
@@ -21,7 +21,6 @@ try {
     round.Value = 0;
     Inventory.GetContext().Build.Value = false;
     TeamsBalancer.IsAutoBalance = true;
-    BreackGraph.Damage = false;
 
     // Создание команд
     Teams.Add("t", "<i><B><size=38>Т</size><size=30>еррористы</size></B>\nзакладка бомбы от just_qstn</i>", rgb(210, 150, 70));
@@ -429,10 +428,9 @@ try {
     }
 
     function WaitingRound() {
-        if (!GameMode.Parameters.GetBool("TestMode")) if (Players.Count == 1) return main_timer.Restart(WARMUP_TIME);
+        if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
-        infTimer.Restart(2);
         TeamsBalancer.IsAutoBalance = true;
         Damage.GetContext().DamageIn.Value = false;
         state.Value = "waiting";
