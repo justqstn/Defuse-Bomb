@@ -8,7 +8,7 @@ try {
 
     // Константы
     const ROUNDS = 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = 30, ROUND_TIME = 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
-        SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250;
+        SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
     // Переменные
     let state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
@@ -142,6 +142,8 @@ try {
             return prop.Value = true;
         }
     });
+    
+    main_wp_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
 
     secondary_wp_trigger.OnEnter.Add(function (p, a) {
         if (state.Value != "waiting") return;
@@ -162,6 +164,8 @@ try {
         }
     });
 
+    secondary_wp_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
+
     explosive_wp_trigger.OnEnter.Add(function (p, a) {
         if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
@@ -180,6 +184,8 @@ try {
             return prop.Value = true;
         }
     });
+
+    explosive_wp_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
 
     defkit_trigger.OnEnter.Add(function (p, a) {
         if (state.Value != "waiting") return;
@@ -200,6 +206,8 @@ try {
         }
     });
 
+    defkit_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
+
     helmet_trigger.OnEnter.Add(function (p, a) {
         if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
@@ -218,6 +226,8 @@ try {
             return prop.Value = true;
         }
     });
+
+    helmet_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
 
     vest_trigger.OnEnter.Add(function (p, a) {
         if (state.Value != "waiting") return;
@@ -238,6 +248,8 @@ try {
         }
     });
 
+    vest_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
+
     bomb_trigger.OnEnter.Add(function (p) {
         if (p.Team == ct_team) return;
         if (bomb.Value) {
@@ -256,11 +268,13 @@ try {
         }
     });
 
+    bomb_trigger.OnExit.Add(function(p) { p.Ui.Hint.Reset(); });
+
     plant_trigger.OnEnter.Add(function (p, a) {
         if (!is_planted.Value && p.Team == t_team) {
             if (state.Value != "round") return p.Ui.Hint.Value = "Место закладки бомбы";
             if (!p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "У вас нет бомбы.";
-            p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "с. в зоне чтобы заложить бомбу";
+            p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "сек. в зоне чтобы заложить бомбу";
             p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
         }
     });
@@ -275,7 +289,7 @@ try {
     defuse_trigger.OnEnter.Add(function (p, a) {
         if (p.Team == ct_team) {
             let def_time = p.Properties.Get("defkit").Value ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
-            p.Ui.Hint.Value = "Ждите " + def_time + "с. чтобы разминировать бомбу";
+            p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
             p.Timers.Get("defuse" + a.Name).Restart(def_time);
         }
     });
@@ -290,21 +304,21 @@ try {
     // Таймеры
     Timers.OnPlayerTimer.Add(function (timer) {
         if (timer.Id.slice(0, 5) == "plant") {
-            const area = AreaService.Get(timer.Id.slice(5));
-            if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "Round") return;
+            const area = AreaService.Get(timer.Id.replace("plant", ""));
+            if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
             Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
             is_planted.Value = true;
             main_timer.Restart(BombTime);
-            timer.Player.Properties.Scores.Value += DefaultBountyForPlant;
+            timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
             timer.Player.Properties.Get("bomb").Value = false;
             area.Tags.Remove("_plant");
             area.Tags.Add("defuse");
         }
         if (timer.Id.slice(0, 6) == "defuse") {
             const area = AreaService.Get(timer.Id.slice(6));
-            if (area.Tags.Contains("_plant") || state.Value != "Round") return;
+            if (area.Tags.Contains("_plant") || state.Value != "round") return;
             is_planted.Value = false;
-            timer.Player.Properties.Scores.Value += DefaultBountyForDefuse;
+            timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
             area.Tags.Remove("defuse");
             area.Tags.Add("_plant");
             EndRound(ct_team);
