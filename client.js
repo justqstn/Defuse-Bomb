@@ -21,6 +21,7 @@ try {
     round.Value = 0;
     Inventory.GetContext().Build.Value = false;
     TeamsBalancer.IsAutoBalance = true;
+    BreackGraph.Damage = false;
 
     // Создание команд
     Teams.Add("t", "<i><B><size=38>Т</size><size=30>еррористы</size></B>\nзакладка бомбы от just_qstn</i>", rgb(210, 150, 70));
