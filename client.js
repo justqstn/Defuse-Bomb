@@ -428,7 +428,7 @@ try {
     }
 
     function WaitingRound() {
-        if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
+        if (!GameMode.Parameters.GetBool("TestMode")) if (Players.Count == 1) return main_timer.Restart(WARMUP_TIME);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         MapEditor.SetBlock(AreaService.Get("bd"), 93);
         infTimer.Restart(2);
