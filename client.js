@@ -123,6 +123,7 @@ try {
 
     // Зоны
     main_wp_trigger.OnEnter.Add(function (p, a) {
+        if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
         if (p.Inventory.Main.Value) return p.Ui.Hint.Value = "Основное оружие уже куплено";
         if (prop.Value) {
@@ -141,6 +142,7 @@ try {
     });
 
     secondary_wp_trigger.OnEnter.Add(function (p, a) {
+        if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
         if (p.Inventory.Secondary.Value) return p.Ui.Hint.Value = "Вторичное оружие уже куплено";
         if (prop.Value) {
@@ -159,6 +161,7 @@ try {
     });
 
     explosive_wp_trigger.OnEnter.Add(function (p, a) {
+        if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
         if (p.Inventory.Explosive.Value) return p.Ui.Hint.Value = "Взрывчатка уже куплена";
         if (prop.Value) {
@@ -177,6 +180,7 @@ try {
     });
 
     defkit_trigger.OnEnter.Add(function (p, a) {
+        if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
         if (p.Properties.Get("defkit").Value) return p.Ui.Hint.Value = "Набор сапера уже куплен";
         if (prop.Value) {
@@ -195,6 +199,7 @@ try {
     });
 
     helmet_trigger.OnEnter.Add(function (p, a) {
+        if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
         if (p.contextedProperties.MaxHp.Value >= HELMET_HP) return p.Ui.Hint.Value = "Шлем уже куплен";
         if (prop.Value) {
@@ -213,6 +218,7 @@ try {
     });
 
     vest_trigger.OnEnter.Add(function (p, a) {
+        if (state.Value != "waiting") return;
         let prop = p.Properties.Get(a.Name + "_accept");
         if (p.contextedProperties.MaxHp.Value >= VEST_HP) return p.Ui.Hint.Value = "Бронежилет и шлем уже куплены";
         if (prop.Value) {
