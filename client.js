@@ -18,9 +18,10 @@ try {
     // Настройка
     state.Value = "loading";
     is_planted.Value = false;
-    round.Value = 0;
+    round.Value = GameMode.Parameters.GetBool("TestMode") ? 1 : 30;
     Inventory.GetContext().Build.Value = false;
     TeamsBalancer.IsAutoBalance = true;
+    BreackGraph.Damage = false;
 
     // Создание команд
     Teams.Add("t", "<i><B><size=38>Т</size><size=30>еррористы</size></B>\nзакладка бомбы от just_qstn</i>", rgb(210, 150, 70));
@@ -174,7 +175,7 @@ try {
             }
             return prop.Value = false;
         } else {
-            p.Ui.Hint.Value = "Вы хотите купить взрывчатку за " + ExplosiveCost + ".\nВойдите в зону второй раз чтобы купить";
+            p.Ui.Hint.Value = "Вы хотите купить взрывчатку за " + EXPLOSIVE_COST + ".\nВойдите в зону второй раз чтобы купить";
             return prop.Value = true;
         }
     });
