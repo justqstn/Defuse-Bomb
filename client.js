@@ -22,6 +22,7 @@ try {
     Inventory.GetContext().Build.Value = false;
     TeamsBalancer.IsAutoBalance = true;
     BreackGraph.Damage = false;
+    Damage.GetContext().GranadeTouchExplosion.Value = false;
 
     // Создание команд
     Teams.Add("t", "<i><B><size=38>Т</size><size=30>еррористы</size></B>\nзакладка бомбы от just_qstn</i>", rgb(210, 150, 70));
@@ -466,7 +467,7 @@ try {
         TeamsBalancer.IsAutoBalance = false;
         AreasEnable(false);
         Damage.GetContext().DamageIn.Value = true;
-        state.Value = "Round";
+        state.Value = "round";
         Spawns.GetContext().RespawnEnable = false;
         Ui.GetContext().Hint.Value = "Закладка бомбы";
         main_timer.Restart(ROUND_TIME);
