@@ -303,26 +303,28 @@ try {
 
     // Таймеры
     Timers.OnPlayerTimer.Add(function (timer) {
-        if (timer.Id == "plant") {
-            const area = AreaService.Get(timer.Id.replace("plant", ""));
-            if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
-            Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
-            is_planted.Value = true;
-            main_timer.Restart(BombTime);
-            timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
-            timer.Player.Properties.Get("bomb").Value = false;
-            area.Tags.Remove("_plant");
-            area.Tags.Add("defuse");
-        }
-        if (timer.Id.slice(0, 6) == "defuse") {
-            const area = AreaService.Get(timer.Id.replace("defuse", ""));
-            if (area.Tags.Contains("_plant") || state.Value != "round") return;
-            is_planted.Value = false;
-            timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
-            area.Tags.Remove("defuse");
-            area.Tags.Add("_plant");
-            EndRound(ct_team);
-        }
+        try {
+            if (timer.Id == "plant") {
+                const area = AreaService.Get(timer.Id.replace("plant", ""));
+                if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
+                Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
+                is_planted.Value = true;
+                main_timer.Restart(BombTime);
+                timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
+                timer.Player.Properties.Get("bomb").Value = false;
+                area.Tags.Remove("_plant");
+                area.Tags.Add("defuse");
+            }
+            if (timer.Id.slice(0, 6) == "defuse") {
+                const area = AreaService.Get(timer.Id.replace("defuse", ""));
+                if (area.Tags.Contains("_plant") || state.Value != "round") return;
+                is_planted.Value = false;
+                timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
+                area.Tags.Remove("defuse");
+                area.Tags.Add("_plant");
+                EndRound(ct_team);
+            }
+        } catch(e) { msg.Show(e.name + " " + e.message); }
     });
 
     main_timer.OnTimer.Add(function () {
