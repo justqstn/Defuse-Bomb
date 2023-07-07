@@ -13,7 +13,7 @@ try {
     // Переменные
     let state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
     main_wp_trigger = AreaPlayerTriggerService.Get("main"), secondary_wp_trigger = AreaPlayerTriggerService.Get("secondary"), explosive_wp_trigger = AreaPlayerTriggerService.Get("explosive"), bomb_trigger = AreaPlayerTriggerService.Get("bomb"), defkit_trigger = AreaPlayerTriggerService.Get("defkit"),
-        defuse_trigger = AreaPlayerTriggerService.Get("defuse"), plant_trigger = AreaPlayerTriggerService.Get("plant"), helmet_trigger = AreaPlayerTriggerService.Get("helmet"), vest_trigger = AreaPlayerTriggerService.Get("helmet");
+        defuse_trigger = AreaPlayerTriggerService.Get("defuse"), plant_trigger = AreaPlayerTriggerService.Get("plant"), helmet_trigger = AreaPlayerTriggerService.Get("helmet"), vest_trigger = AreaPlayerTriggerService.Get("armour");
 
     // Настройка
     state.Value = "loading";
