@@ -113,7 +113,7 @@ Damage.OnDeath.Add(function (p) {
 Damage.OnKill.Add(function (p, _k) {
     if (state.Value == "round") {
         if (_k.Team != null && _k.Team != p.Team) {
-            ++p.Properties.Kills.Value;
+            p.Properties.Kills.Value++;
             p.Properties.Scores.Value += BOUNTY_KILL;
         }
     }
@@ -121,7 +121,7 @@ Damage.OnKill.Add(function (p, _k) {
 
 Properties.OnPlayerProperty.Add(function (c, v) {
     if (state.Value == "round") {
-        if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(anotherTeam(c.Player.Team));
+        if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(AnotherTeam(c.Player.Team));
         if (c.Player.Team == ct_team && v.Name == "Deaths" && is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(t_team);
     }
     if (c.Player.Properties.Scores.Value >= MAX_MONEY + 1) c.Player.Properties.Scores.Value = MAX_MONEY;
