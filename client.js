@@ -7,7 +7,7 @@ try {
 
 
     // Константы
-    const ROUNDS = 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = 30, ROUND_TIME = 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+    const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 1 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
         SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1800, BOUNTY_LOSE = 1200, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
     // Переменные
@@ -18,7 +18,7 @@ try {
     // Настройка
     state.Value = "loading";
     is_planted.Value = false;
-    round.Value = GameMode.Parameters.GetBool("TestMode") ? 1 : 30;
+    round.Value = 0;
     Inventory.GetContext().Build.Value = false;
     TeamsBalancer.IsAutoBalance = true;
     BreackGraph.Damage = false;
@@ -303,7 +303,7 @@ try {
 
     // Таймеры
     Timers.OnPlayerTimer.Add(function (timer) {
-        if (timer.Id.slice(0, 5) == "plant") {
+        if (timer.Id == "plant") {
             const area = AreaService.Get(timer.Id.replace("plant", ""));
             if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
             Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
@@ -315,7 +315,7 @@ try {
             area.Tags.Add("defuse");
         }
         if (timer.Id.slice(0, 6) == "defuse") {
-            const area = AreaService.Get(timer.Id.slice(6));
+            const area = AreaService.Get(timer.Id.replace("defuse", ""));
             if (area.Tags.Contains("_plant") || state.Value != "round") return;
             is_planted.Value = false;
             timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
@@ -341,7 +341,7 @@ try {
                 else EndRound(ct_team);
                 break
             case "end_round":
-                if (!is_planted.Value) WaitingRound();
+                WaitingRound();
                 break
             case "end_game":
                 Game.RestartGame();
@@ -501,14 +501,14 @@ try {
         Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
         var e = Players.GetEnumerator();
         while (e.moveNext()) {
-            Properties.GetContext(e.Current).Scores.Value += e.Current.t == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
+            Properties.GetContext(e.Current).Scores.Value += e.Current.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
         }
         t.Properties.Get("wins").Value++;
         t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
         if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
         aTeam.Properties.Get("loses").Value++;
 
-        if (rounds.Value >= ROUNDS + 1) EndGame();
+        if (round.Value >= ROUNDS + 1) EndGame();
     }
 
     function EndGame() {
