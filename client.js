@@ -1,3 +1,4 @@
+
 // Закладка бомбы от just_qstn
 // v1
 // All rights reversed - все права защищены
@@ -117,7 +118,7 @@ Damage.OnKill.Add(function (p, _k) {
 });
 
 Properties.OnPlayerProperty.Add(function (c, v) {
-    if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(AnotherTeam(context.Player.Team));
+    if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(anotherTeam(c.Player.Team));
     if (c.Player.Team == ct_team && v.Name == "Deaths" && is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(t_team);
     if (c.Player.Properties.Scores.Value >= MAX_MONEY + 1) c.Player.Properties.Scores.Value = MAX_MONEY;
 });
