@@ -1,4 +1,4 @@
-\try {
+try {
     // Закладка бомбы от just_qstn
     // v1
 
@@ -397,7 +397,7 @@
     function StartGame() {
         Spawns.GetContext().RespawnEnable = false;
         Ui.GetContext().Hint.Value = "Загрузка режима";
-        AreasEnable(false)
+        AreasEnable(false);
         main_timer.Restart(LOADING_TIME);
         InitAreas();
     }
