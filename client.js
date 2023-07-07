@@ -81,7 +81,7 @@ try {
     });
 
     Teams.OnPlayerChangeTeam.Add(function (p) {
-        if (state.Value == "round" || state.Value == "end_round" || state.Value != "loading") {
+        if (state.Value == "round" || state.Value == "end_round") {
             p.Spawns.Spawn();
             p.Spawns.Despawn();
             p.Ui.Hint.Value = "Игра уже началась. Ждите конца игры";
