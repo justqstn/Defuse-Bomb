@@ -98,8 +98,8 @@ Players.OnPlayerDisconnected.Add(function () {
 });
 
 Damage.OnDeath.Add(function (p) {
-    p.Properties.Deaths.Value++;
-    if (state.Value != "warmup") {
+    if (state.Value != "round") {
+        p.Properties.Deaths.Value++;
         p.Properties.Get("defkit").Value = false;
         p.Properties.Get("bomb").Value = false;
 
@@ -111,15 +111,19 @@ Damage.OnDeath.Add(function (p) {
 });
 
 Damage.OnKill.Add(function (p, _k) {
-    if (_k.Team != null && _k.Team != p.Team) {
-        ++p.Properties.Kills.Value;
-        p.Properties.Scores.Value += BOUNTY_KILL;
+    if (state.Value != "round") {
+        if (_k.Team != null && _k.Team != p.Team) {
+            ++p.Properties.Kills.Value;
+            p.Properties.Scores.Value += BOUNTY_KILL;
+        }
     }
 });
 
 Properties.OnPlayerProperty.Add(function (c, v) {
-    if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(anotherTeam(c.Player.Team));
-    if (c.Player.Team == ct_team && v.Name == "Deaths" && is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(t_team);
+    if (state.Value == "round") {
+        if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(anotherTeam(c.Player.Team));
+        if (c.Player.Team == ct_team && v.Name == "Deaths" && is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(t_team);
+    }
     if (c.Player.Properties.Scores.Value >= MAX_MONEY + 1) c.Player.Properties.Scores.Value = MAX_MONEY;
 });
 
