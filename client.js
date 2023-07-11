@@ -91,10 +91,10 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
     } else p.Spawns.Spawn();
 });
 
-Players.OnPlayerDisconnected.Add(function () {
+Players.OnPlayerDisconnected.Add(function (p) {
     if (state.Value != "round") return;
-    if (t_team.GetAlivePlayersCount() <= 0) EndRound(ct_team);
-    if (ct_team.GetAlivePlayersCount() <= 0) EndRound(t_team);
+    p.Team.Properties.Get("plrs").Value--;
+    if (p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team)); 
 });
 
 Damage.OnDeath.Add(function (p) {
@@ -107,6 +107,7 @@ Damage.OnDeath.Add(function (p) {
         p.Inventory.Secondary.Value = false;
         p.Inventory.Explosive.Value = false;
         p.contextedProperties.MaxHp.Value = 100;
+        p.Team.Properties.Get("plrs").Value--;
     }
 });
 
@@ -121,8 +122,8 @@ Damage.OnKill.Add(function (p, _k) {
 
 Properties.OnPlayerProperty.Add(function (c, v) {
     if (state.Value == "round") {
-        if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(AnotherTeam(c.Player.Team));
-        if (c.Player.Team == ct_team && v.Name == "Deaths" && is_planted.Value && c.Player.Team.GetAlivePlayersCount() <= 0) EndRound(t_team);
+        if (v.Name == "Deaths" && !is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
+        if (c.Player.Team == ct_team && v.Name == "Deaths" && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
     }
     if (c.Player.Properties.Scores.Value >= MAX_MONEY + 1) c.Player.Properties.Scores.Value = MAX_MONEY;
 });
@@ -221,6 +222,7 @@ helmet_trigger.OnEnter.Add(function (p, a) {
             p.Properties.Scores.Value -= HELMET_COST;
             p.Ui.Hint.Value = "Вы купили шлем";
             p.contextedProperties.MaxHp.Value = HELMET_HP;
+            p.Spawns.Spawn();
         } else {
             p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (HELMET_COST - p.Properties.Scores.Value);
         }
@@ -242,6 +244,7 @@ vest_trigger.OnEnter.Add(function (p, a) {
             p.Properties.Scores.Value -= VEST_COST;
             p.Ui.Hint.Value = "Вы купили бронежилет и шлем";
             p.contextedProperties.MaxHp.Value = VEST_HP;
+            p.Spawns.Spawn();
         } else {
             p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (VEST_COST - p.Properties.Scores.Value);
         }
@@ -458,6 +461,7 @@ function StartWarmup() {
 
 function WaitingRound() {
     //if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
+    if (round.Value == ROUNDS / 2) TeamChange();
     MapEditor.SetBlock(AreaService.Get("bd"), 93);
     MapEditor.SetBlock(AreaService.Get("bd"), 93);
     TeamsBalancer.IsAutoBalance = true;
@@ -465,7 +469,6 @@ function WaitingRound() {
     state.Value = "waiting";
     SpawnTeams();
     Ui.GetContext().Hint.Value = "Покупайте оружиe";
-    main_timer.Restart(PRE_ROUND_TIME);
     AreasEnable(true);
     AddBombToRandom();
     Inventory.GetContext().Main.Value = false;
@@ -477,11 +480,13 @@ function WaitingRound() {
         areas[i].Tags.Add("_plant");
         areas[i].Tags.Remove("defuse");
     }
-
     if (!Properties.GetContext().Get("addedBomb").Value) AddBombToRandom();
+    main_timer.Restart(PRE_ROUND_TIME);
 }
 
 function StartRound() {
+    t_team.Properties.Get("plrs").Value = t_team.Count;
+    ct_team.Properties.Get("plrs").Value = ct_team.Count;
     TeamsBalancer.IsAutoBalance = false;
     AreasEnable(false);
     Damage.GetContext().DamageIn.Value = true;
@@ -515,7 +520,24 @@ function EndRound(t) {
 
     if (t.Properties.Get("wins").Value >= ROUNDS / 2) return EndGame();
     if (round.Value >= ROUNDS) return EndGame();
+}
 
+function TeamChange() {
+    const t_wins = t_team.Properties.Get("wins").Value, t_loses = t.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
+    let iter = Players.GetEnumerator();
+    while (iter.moveNext()) {
+        iter.Properties.Scores.Value = DEFAULT_MONEY;
+        iter.Inventory.Main.Value = false;
+        iter.Inventory.Secondary.Value = false;
+        iter.Inventory.Explosive.Value = false;
+        iter.contextedProperties.MaxHp.Value = 100;
+        if (iter.Current.Team == t_team) ct_team.Add(iter.Current);
+        if (iter.Current.Team == ct_team) t_team.Add(iter.Current);
+    }
+    t_team.Properties.Get("wins").Value = ct_wins;
+    t_team.Properties.Get("loses").Value = ct_loses;
+    ct_team.Properties.Get("wins").Value = t_wins;
+    ct_team.Properties.Get("loses").Value = t_loses;
 }
 
 function EndGame() {
