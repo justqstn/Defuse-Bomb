@@ -109,10 +109,10 @@ function SpawnTeams()
 // обновление количества 
 function p_Count() { if (s_Locker.Value == true) [h, z].forEach(function(e) { e.Properties.Get('count_hint').Value = e.Count }), props_T('human', 'zombie', 'count_hint'); }
 c_Timer.OnTimer.Add(p_Count), c_Timer.RestartLoop(1);
-w_Timer.OnTimer.Add(function() {
-   var e = Teams.GetEnumerator();
-         while (e.MoveNext()) 
-        { if (e.Current.Team == h && e.Current.GetAlivePlayersCount() < 1 && s_Prop.Value = 'Infection') endMode, Ui.GetContext().Hint.Value = 'зомби сьели всех!' }
+// таймер победителей
+w_Timer.OnTimer.Add(function()
+{  if (hTeam.GetAlivePlayersCount() < 1 && (s_Prop.Value == 'Infection' || s_Prop.Value == 'Swarm')) endMode(), Ui.GetContext().Hint.Value = 'зомби сьели всех!';
+   else if (zTeam.GetAlivePlayersCount() < 1 && s_Prop.Value == 'Swarm') endMode(), Ui.GetContext().Hint.Value = 'все зомби убиты!';                              
 });
 w_Timer.RestartLoop(1);
 // настраиваем таймеры игрока
