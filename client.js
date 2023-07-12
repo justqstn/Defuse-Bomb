@@ -42,7 +42,7 @@ Properties.OnPlayerProperty.Add(function(c, v)
 Properties.OnTeamProperty.Add(function(c, v) 
 {   t = c.Team;
     // добавляем красивую хуйню 
-    if (t == h && v.Name == 'alive_count' && t.Properties.Get('alive_count').Value =< 0 && s_Prop.Value == 'Infection') endMode, Ui.GetContext().Hint.Value = 'зомби сьели всех!';
+    if (t == h && t.Properties.Get('alive_count').Value < 0 && s_Prop.Value == 'Infection') { endMode, Ui.GetContext().Hint.Value = 'зомби сьели всех!' };
 });
 // когда игроку поступает предложение вступить в команду
 Teams.OnRequestJoinTeam.Add(function(p) { 
