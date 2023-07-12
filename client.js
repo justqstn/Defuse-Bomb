@@ -39,13 +39,6 @@ Properties.OnPlayerProperty.Add(function(c, v)
     // эсли у любого игрока мутация достигла 100 то заражаем
     if (p.Properties.Get('M').Value >= 100 && p.Team != z) z.Add(p), p.Ui.Hint.Value = 'следи за своей мутацией!', p.Timers.Get('Reset').Restart(4);      
 });
-// проперти команд
-Properties.OnTeamProperty.Add(function(c, v) 
-{   t = c.Team;
-    // добавляем красивую хуйню 
-    if (t == h && v.Name == 'alive_count' && t.Properties.Get('alive_count').Value < 1 && (s_Prop.Value == 'Infection' || s_Prop.Value == 'Swarm')) endMode(), Ui.GetContext().Hint.Value = 'зомби сьели всех!';
-    else if (t == z && v.Name == 'alive_count' && t.Properties.Get('alive_count').Value < 1 && s_Prop.Value == 'Swarm') endMode(), Ui.GetContext().Hint.Value = 'все зомби убиты!';
-});
 // когда игроку поступает предложение вступить в команду
 Teams.OnRequestJoinTeam.Add(function(p) { 
   // ограничитель
@@ -114,8 +107,14 @@ function SpawnTeams()
         { e.Current.Spawns.Spawn(); }
 }
 // обновление количества 
-function p_Count() { if (s_Locker.Value == true) [h, z].forEach(function(e) { e.Properties.Get('count_hint').Value = e.Count, e.Properties.Get('alive_count').Value = e.GetAlivePlayersCount()}), props_T('human', 'zombie', 'count_hint'); }
+function p_Count() { if (s_Locker.Value == true) [h, z].forEach(function(e) { e.Properties.Get('count_hint').Value = e.Count }), props_T('human', 'zombie', 'count_hint'); }
 c_Timer.OnTimer.Add(p_Count), c_Timer.RestartLoop(1);
+w_Timer.OnTimer.Add(function() {
+   var e = Teams.GetEnumerator();
+         while (e.MoveNext()) 
+        { if (e.Current.Team == h && e.Current.GetAlivePlayersCount() < 1 && s_Prop.Value = 'Infection') endMode, Ui.GetContext().Hint.Value = 'зомби сьели всех!' }
+});
+w_Timer.RestartLoop(1);
 // настраиваем таймеры игрока
 Timers.OnPlayerTimer.Add(function(t) {
 // нужное
