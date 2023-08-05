@@ -1,13 +1,11 @@
 // Закладка бомбы от just_qstn
 // v1
+
 /* MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discord: дурак и психопат!#5687)
 
 Данная лицензия разрешает лицам, получившим копию данного программного обеспечения и сопутствующей документации (далее — Программное обеспечение), безвозмездно использовать Программное обеспечение без ограничений, включая неограниченное право на использование, копирование, изменение, слияние, публикацию, распространение, сублицензирование и/или продажу копий Программного обеспечения, а также лицам, которым предоставляется данное Программное обеспечение, при соблюдении следующих условий:
-
 Указанное выше уведомление об авторском праве и данные условия должны быть включены во все копии или значимые части данного Программного обеспечения.
-
 ДАННОЕ ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ ГАРАНТИИ ТОВАРНОЙ ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ, НО НЕ ОГРАНИЧИВАЯСЬ ИМИ. НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО КАКИМ-ЛИБО ИСКАМ, ЗА УЩЕРБ ИЛИ ПО ИНЫМ ТРЕБОВАНИЯМ, В ТОМ ЧИСЛЕ, ПРИ ДЕЙСТВИИ КОНТРАКТА, ДЕЛИКТЕ ИЛИ ИНОЙ СИТУАЦИИ, ВОЗНИКШИМ ИЗ-ЗА ИСПОЛЬЗОВАНИЯ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫХ ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ. 
-
 Если вам лень читать: используешь мой код - скопируй этот текст и вставь его к себе в начало режима*/
 
 
@@ -106,6 +104,7 @@ Players.OnPlayerDisconnected.Add(function (p) {
 
 Damage.OnDeath.Add(function (p) {
 	if (state.Value == "round") {
+		p.Team.Properties.Get("plrs").Value--;
 		p.Properties.Deaths.Value++;
 		p.Properties.Get("defkit").Value = false;
 		p.Properties.Get("bomb").Value = false;
@@ -114,7 +113,8 @@ Damage.OnDeath.Add(function (p) {
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
 		p.contextedProperties.MaxHp.Value = 100;
-		p.Team.Properties.Get("plrs").Value--;
+		if (!is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
+		if (c.Player.Team == ct_team && is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 	}
 });
 
@@ -126,6 +126,8 @@ Damage.OnKill.Add(function (p, _k) {
 		}
 	}
 });
+
+Spawns.OnSpawn.Add(function(p) {if (p.Properties.Scores.Value > MAX_MONEY) p.Properties.Scores.Value = MAX_MONEY;});
 
 Properties.OnPlayerProperty.Add(function (c, v) {
 	if (state.Value == "round") {
