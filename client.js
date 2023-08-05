@@ -107,6 +107,7 @@ Damage.OnDeath.Add(function (p) {
 		p.Team.Properties.Get("plrs").Value--;
 		p.Properties.Deaths.Value++;
 		p.Properties.Get("defkit").Value = false;
+		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
 
 		p.Inventory.Main.Value = false;
