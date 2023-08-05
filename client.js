@@ -8,7 +8,7 @@
 
 
 // Константы
-const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 2 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 4 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
 	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
 // Переменные
@@ -378,6 +378,7 @@ function AnotherTeam(t) {
 }
 
 function AddBombToRandom() {
+	if (t_team.Count == 0) return;
 	let plrs = [], e = Players.GetEnumerator();
 	while (e.moveNext()) {
 		if (e.Current.Team == t_team) plrs.push(e.Current.IdInRoom);
@@ -478,7 +479,6 @@ function WaitingRound() {
 	SpawnTeams();
 	Ui.GetContext().Hint.Value = "Покупайте оружиe";
 	AreasEnable(true);
-	AddBombToRandom();
 	Inventory.GetContext().Main.Value = false;
 	Inventory.GetContext().Secondary.Value = false;
 	Inventory.GetContext().Explosive.Value = false;
@@ -489,6 +489,7 @@ function WaitingRound() {
 		areas[i].Tags.Remove("defuse");
 	}
 	main_timer.Restart(PRE_ROUND_TIME);
+	AddBombToRandom();
 }
 
 function StartRound() {
