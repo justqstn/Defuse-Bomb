@@ -527,11 +527,11 @@ function TeamChange() {
 		const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
 	let iter = Players.GetEnumerator();
 	while (iter.moveNext()) {
-		iter.Properties.Scores.Value = DEFAULT_MONEY;
-		iter.Inventory.Main.Value = false;
-		iter.Inventory.Secondary.Value = false;
-		iter.Inventory.Explosive.Value = false;
-		iter.contextedProperties.MaxHp.Value = 100;
+		iter.Current.Properties.Scores.Value = DEFAULT_MONEY;
+		iter.Current.Inventory.Main.Value = false;
+		iter.Current.Inventory.Secondary.Value = false;
+		iter.Current.Inventory.Explosive.Value = false;
+		iter.Current.contextedProperties.MaxHp.Value = 100;
 		if (iter.Current.Team == t_team) ct_team.Add(iter.Current);
 		if (iter.Current.Team == ct_team) t_team.Add(iter.Current);
 	}
