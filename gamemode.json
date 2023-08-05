@@ -1,6 +1,6 @@
 {
   "Name": "<B><color=#FFE4B5>Закладка</color> <color=#B0E0E6>бомбы</color></B>",
-  "Description": "<B>v1.0. Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO! ВНИМАНИЕ: для начала игры нужно 2 и больше человек.",
+  "Description": "<B>v1.0.1. Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
   "StartClientVersion": 334,
   "MapFilter": {
     "IsBlank": false,
@@ -12,13 +12,5 @@
       "Name": "Карты закладки бомбы"
     }
   ],
-  "Parameters": {
-    "Bool": [
-      {
-        "Name": "TestMode",
-        "DisplayName": "Тестовый режим",
-        "Default": false
-      }
-    ]
-  }
+  "Parameters": {}
 }
