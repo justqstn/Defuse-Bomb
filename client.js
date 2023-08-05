@@ -354,6 +354,7 @@ main_timer.OnTimer.Add(function () {
 			if (round.Value == ROUNDS / 2) {
 				main_timer.Restart(3);
 				TeamChange();
+				break;
 			}
 			WaitingRound();
 			break
@@ -468,8 +469,6 @@ function StartWarmup() {
 }
 
 function WaitingRound() {
-	//if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
-
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	TeamsBalancer.IsAutoBalance = true;
