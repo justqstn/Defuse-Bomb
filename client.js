@@ -514,7 +514,7 @@ function EndRound(t) {
 	is_planted.Value = false;
 	main_timer.Restart(AFTER_ROUND_TIME);
 	let aTeam = AnotherTeam(t);
-
+	round.Value++;
 	Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
 	let e = Players.GetEnumerator();
 	while (e.moveNext()) {
