@@ -522,7 +522,7 @@ function EndRound(t) {
 }
 
 function TeamChange() {
-	const t_wins = t_team.Properties.Get("wins").Value, t_loses = t.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
+	const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
 	let iter = Players.GetEnumerator();
 	while (iter.moveNext()) {
 		iter.Properties.Scores.Value = DEFAULT_MONEY;
