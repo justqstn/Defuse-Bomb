@@ -113,8 +113,8 @@ Damage.OnDeath.Add(function (p) {
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
 		p.contextedProperties.MaxHp.Value = 100;
-		if (!is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
-		if (c.Player.Team == ct_team && is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+		if (!is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
+		if (p.Team == ct_team && is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 	}
 });
 
