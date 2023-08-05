@@ -8,7 +8,7 @@
 
 
 // Константы
-const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 4 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 2 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
 	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
 // Переменные
@@ -349,13 +349,9 @@ main_timer.OnTimer.Add(function () {
 		case "round":
 			if (is_planted.Value) EndRound(t_team);
 			else EndRound(ct_team);
-			break
+			break;
 		case "end_round":
-			if (round.Value == ROUNDS / 2) {
-				main_timer.Restart(3);
-				TeamChange();
-				break;
-			}
+			round.Value++;
 			WaitingRound();
 			break
 		case "end_game":
@@ -469,6 +465,7 @@ function StartWarmup() {
 }
 
 function WaitingRound() {
+	if (round.Value == ROUNDS / 2) TeamChange();
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	TeamsBalancer.IsAutoBalance = true;
@@ -477,18 +474,16 @@ function WaitingRound() {
 	SpawnTeams();
 	Ui.GetContext().Hint.Value = "Покупайте оружиe";
 	AreasEnable(true);
-	AddBombToRandom();
 	Inventory.GetContext().Main.Value = false;
 	Inventory.GetContext().Secondary.Value = false;
 	Inventory.GetContext().Explosive.Value = false;
-	Properties.GetContext().Get("bomb").Value = false;
 	const areas = AreaService.GetByTag("defuse");
 	for (let i = 0; i < areas.length; i++) {
 		areas[i].Tags.Add("_plant");
 		areas[i].Tags.Remove("defuse");
 	}
-	if (!Properties.GetContext().Get("addedBomb").Value) AddBombToRandom();
 	main_timer.Restart(PRE_ROUND_TIME);
+	AddBombToRandom();
 }
 
 function StartRound() {
@@ -506,12 +501,11 @@ function StartRound() {
 }
 
 function EndRound(t) {
+	state.Value = "end_round";
 	Damage.GetContext().DamageIn.Value = false;
 	Properties.GetContext().Get("addedBomb").Value = false;
-	state.Value = "end_round";
 	is_planted.Value = false;
 	main_timer.Restart(AFTER_ROUND_TIME);
-	round.Value++;
 	let aTeam = AnotherTeam(t);
 
 	Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
