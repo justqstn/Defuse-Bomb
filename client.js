@@ -310,6 +310,9 @@ defuse_trigger.OnExit.Add(function (p, a) {
 
 // Таймеры
 Timers.OnPlayerTimer.Add(function (timer) {
+	if (timer.Id == "clear") {
+		return timer.Player.Ui.Hint.Reset();
+	}
 	if (timer.Id.slice(0, 5) == "plant") {
 		const area = AreaService.Get(timer.Id.replace("plant", ""));
 		if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
@@ -348,6 +351,10 @@ main_timer.OnTimer.Add(function () {
 			else EndRound(ct_team);
 			break
 		case "end_round":
+			if (round.Value == ROUNDS / 2) {
+				main_timer.Restart(3);
+				TeamChange();
+			}
 			WaitingRound();
 			break
 		case "end_game":
@@ -379,6 +386,7 @@ function AddBombToRandom() {
 		let p = Players.GetByRoomId(plrs[GetRandom(0, plrs.length - 1)]);
 		p.Properties.Get("bomb").Value = true;
 		p.Ui.Hint.Value = "Вы получили бомбу!";
+		p.Timers.Get("clear").Restart(30);
 	}
 }
 
@@ -461,8 +469,7 @@ function StartWarmup() {
 
 function WaitingRound() {
 	//if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
-	if (round.Value == ROUNDS / 2) TeamChange();
-	TeamChange();
+
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	TeamsBalancer.IsAutoBalance = true;
