@@ -462,6 +462,7 @@ function StartWarmup() {
 function WaitingRound() {
 	//if (Players.Count == 1 || !GameMode.Parameters.GetBool("TestMode")) return main_timer.Restart(WARMUP_TIME);
 	if (round.Value == ROUNDS / 2) TeamChange();
+	TeamChange();
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	TeamsBalancer.IsAutoBalance = true;
@@ -522,7 +523,8 @@ function EndRound(t) {
 }
 
 function TeamChange() {
-	const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
+	try {
+		const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
 	let iter = Players.GetEnumerator();
 	while (iter.moveNext()) {
 		iter.Properties.Scores.Value = DEFAULT_MONEY;
@@ -537,6 +539,7 @@ function TeamChange() {
 	t_team.Properties.Get("loses").Value = ct_loses;
 	ct_team.Properties.Get("wins").Value = t_wins;
 	ct_team.Properties.Get("loses").Value = t_loses;
+	} catch(e) {msg.Show(e.name + " " + e.message);}
 }
 
 function EndGame() {
