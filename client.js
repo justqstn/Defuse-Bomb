@@ -416,7 +416,7 @@ function AreasEnable(v) {
 
 function SpawnTeams() {
     Spawns.GetContext().RespawnEnable = true;
-    var e = Teams.GetEnumerator();
+    let e = Teams.GetEnumerator();
     while (e.moveNext()) {
         Spawns.GetContext(e.Current).Spawn();
     }
@@ -476,7 +476,7 @@ function WaitingRound() {
     Inventory.GetContext().Explosive.Value = false;
     Properties.GetContext().Get("bomb").Value = false;
     const areas = AreaService.GetByTag("defuse");
-    for (var i = 0; i < areas.length; i++) {
+    for (let i = 0; i < areas.length; i++) {
         areas[i].Tags.Add("_plant");
         areas[i].Tags.Remove("defuse");
     }
@@ -499,17 +499,16 @@ function StartRound() {
 }
 
 function EndRound(t) {
-
     Damage.GetContext().DamageIn.Value = false;
     Properties.GetContext().Get("addedBomb").Value = false;
     state.Value = "end_round";
     is_planted.Value = false;
     main_timer.Restart(AFTER_ROUND_TIME);
     round.Value++;
-    var aTeam = AnotherTeam(t);
+    let aTeam = AnotherTeam(t);
 
     Ui.GetContext().Hint.Value = t == ct_team ? "Победил спецназ" : "Победили террористы";
-    var e = Players.GetEnumerator();
+    let e = Players.GetEnumerator();
     while (e.moveNext()) {
         Properties.GetContext(e.Current).Scores.Value += e.Current.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
     }
@@ -518,7 +517,7 @@ function EndRound(t) {
     if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
     aTeam.Properties.Get("loses").Value++;
 
-    if (t.Properties.Get("wins").Value >= ROUNDS / 2) return EndGame();
+    if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
     if (round.Value >= ROUNDS) return EndGame();
 }
 
