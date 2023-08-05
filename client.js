@@ -8,7 +8,7 @@
 
 
 // Константы
-const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 4 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 2 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
 	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
 
 // Переменные
@@ -349,16 +349,14 @@ main_timer.OnTimer.Add(function () {
 		case "round":
 			if (is_planted.Value) EndRound(t_team);
 			else EndRound(ct_team);
+			break;
+		case "end_round":
 			if (round.Value == ROUNDS / 2 && !Properties.GetContext().Get("teams_changed").Value) {
 				main_timer.Restart(3);
 				TeamChange();
 				Properties.GetContext().Get("teams_changed").Value = true;
 				break;
 			}
-			break;
-			
-		case "end_round":
-			round.Value++;
 			WaitingRound();
 			break
 		case "end_game":
@@ -530,8 +528,7 @@ function EndRound(t) {
 }
 
 function TeamChange() {
-	try {
-		const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
+	const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
 	let iter = Players.GetEnumerator();
 	while (iter.moveNext()) {
 		iter.Current.Properties.Scores.Value = DEFAULT_MONEY;
@@ -546,7 +543,6 @@ function TeamChange() {
 	t_team.Properties.Get("loses").Value = ct_loses;
 	ct_team.Properties.Get("wins").Value = t_wins;
 	ct_team.Properties.Get("loses").Value = t_loses;
-	} catch(e) {msg.Show(e.name + " " + e.message);}
 }
 
 function EndGame() {
