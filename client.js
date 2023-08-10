@@ -130,7 +130,7 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 
 Properties.OnTeamProperty.Add(function(c, v) {
 	if (v.Name != "hint") {
-		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c.Team.Properties.Get("plrs").Value || "-").Value + " >"; 
+		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c.Team.Properties.Get("plrs") + " >"); 
 	}
 });
 
