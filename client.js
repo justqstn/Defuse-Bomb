@@ -463,9 +463,10 @@ function StartGame() {
 
 function StartWarmup() {
 	state.Value = "warmup";
-	msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
 	let plant_areas = AreaService.GetByTag("plant");
-	plant_areas.forEach(function(elem) {
+	msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
+	for (indx in plant_areas) {
+		let a = plant_areas[indx];
 		let e = a.Ranges.GetEnumerator();
 		while (e.moveNext()) {
 			let range = e.Current;
@@ -477,16 +478,15 @@ function StartWarmup() {
 			AreaService.Get(rnd_name).Tags.Add("_plant");
 			AreaService.Get(rnd_name).Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
 		}
-		elem.Tags.Clear();
-		elem.Ranges.Clear();
-	});
+		a.Tags.Clear();
+		a.Ranges.Clear();
+	}
 	Damage.GetContext().DamageIn.Value = true;
 	Spawns.GetContext().RespawnEnable = true;
 	SpawnTeams();
 	Ui.GetContext().Hint.Value = "Разминка";
 	main_timer.Restart(WARMUP_TIME);
 }
-
 function WaitingRound() {
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
@@ -500,11 +500,11 @@ function WaitingRound() {
 	Inventory.GetContext().Secondary.Value = false;
 	Inventory.GetContext().Explosive.Value = false;
 	Properties.GetContext().Get("bomb").Value = false;
-	let plant_areas = AreaService.GetByTag("defuse");
-	plant_areas.forEach(function(elem) {
-		elem.Tags.Add("_plant");
-		elem.Tags.Remove("defuse");
-	});
+	const areas = AreaService.GetByTag("defuse");
+	for (let i = 0; i < areas.length; i++) {
+		areas[i].Tags.Add("_plant");
+		areas[i].Tags.Remove("defuse");
+	}
 	main_timer.Restart(PRE_ROUND_TIME);
 	AddBombToRandom();
 }
@@ -539,7 +539,7 @@ function EndRound(t) {
 	t.Properties.Get("wins").Value++;
 	t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
 	if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
-	if (aTeam.Properties.Get("loses").Value < MAX_LOSS_BONUS) aTeam.Properties.Get("loses").Value++;
+	aTeam.Properties.Get("loses").Value++;
 
 	if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
 	if (round.Value >= ROUNDS) return EndGame();
