@@ -464,7 +464,8 @@ function StartGame() {
 function StartWarmup() {
 	state.Value = "warmup";
 	msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
-	AreaService.GetByTag("plant").forEach(function(elem) {
+	let plant_areas = AreaService.GetByTag("plant");
+	plant_areas.forEach(function(elem) {
 		let e = a.Ranges.GetEnumerator();
 		while (e.moveNext()) {
 			let range = e.Current;
@@ -499,7 +500,8 @@ function WaitingRound() {
 	Inventory.GetContext().Secondary.Value = false;
 	Inventory.GetContext().Explosive.Value = false;
 	Properties.GetContext().Get("bomb").Value = false;
-	AreaService.GetByTag("defuse").forEach(function(elem) {
+	let plant_areas = AreaService.GetByTag("defuse");
+	plant_areas.forEach(function(elem) {
 		elem.Tags.Add("_plant");
 		elem.Tags.Remove("defuse");
 	});
