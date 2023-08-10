@@ -130,7 +130,7 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 
 Properties.OnTeamProperty.Add(function(c, v) {
 	if (v.Name != "hint") {
-		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins") + " >\n< Живых: " + (c.Team.Properties.Get("plrs") || "-") + " >"; 
+		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins").Value + " >\n< Живых: " + (c.Team.Properties.Get("plrs") || "-").Value + " >"; 
 	}
 });
 
@@ -537,7 +537,7 @@ function EndRound(t) {
 	t.Properties.Get("wins").Value++;
 	t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
 	if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
-	aTeam.Properties.Get("loses").Value++;
+	if (aTeam.Properties.Get("loses").Value < MAX_LOSS_BONUS) aTeam.Properties.Get("loses").Value++;
 
 	if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
 	if (round.Value >= ROUNDS) return EndGame();
