@@ -14,7 +14,7 @@
 
 // Константы
 const ROUNDS = GameMode.Parameters.GetBool("TestMode") ? 4 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
-	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500;
+	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500, MAX_LOSS_BONUS = 5;
 
 // Переменные
 let state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
@@ -74,8 +74,8 @@ LeaderBoard.PlayersWeightGetter.Set(function (p) {
 	return p.Properties.Get("Kills").Value;
 });
 
-Ui.GetContext().TeamProp1.Value = { Team: "t", Prop: "wins" };
-Ui.GetContext().TeamProp2.Value = { Team: "ct", Prop: "wins" };
+Ui.GetContext().TeamProp1.Value = { Team: "t", Prop: "hint" };
+Ui.GetContext().TeamProp2.Value = { Team: "ct", Prop: "hint" };
 
 Ui.GetContext().MainTimerId.Value = main_timer.Id;
 
@@ -97,7 +97,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	if (state.Value != "round") return;
+	if (state.Value != "round" || !p.IsAlive) return;
 	p.Team.Properties.Get("plrs").Value--;
 	if (p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
 });
@@ -109,13 +109,28 @@ Damage.OnDeath.Add(function (p) {
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
-
 		p.Inventory.Main.Value = false;
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
 		p.contextedProperties.MaxHp.Value = 100;
-		if (!is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
-		if (p.Team == ct_team && is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+	}
+});
+
+Properties.OnPlayerProperty.Add(function(c, v) {
+	switch(v.Name) {
+		case "Scores":
+			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
+			break;
+		case "Deaths":
+			if (!is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
+			if (p.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+			break;
+	}
+});
+
+Properties.OnTeamProperty.Add(function(c, v) {
+	if (v.Name != "hint") {
+		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins") + " >\n< Живых: " + (c.Team.Properties.Get("plrs") || "-") + " >"; 
 	}
 });
 
@@ -128,7 +143,10 @@ Damage.OnKill.Add(function (p, _k) {
 	}
 });
 
-Spawns.OnSpawn.Add(function(p) {if (p.Properties.Scores.Value > MAX_MONEY) p.Properties.Scores.Value = MAX_MONEY;});
+Spawns.OnSpawn.Add(function(p) {
+	if (p.Properties.Scores.Value > MAX_MONEY) p.Properties.Scores.Value = MAX_MONEY;
+	if (state.Value == "waiting") p.Timers.Get("clear").Restart(PRE_ROUND_TIME); 
+});
 
 // Зоны
 main_wp_trigger.OnEnter.Add(function (p, a) {
@@ -312,9 +330,7 @@ defuse_trigger.OnExit.Add(function (p, a) {
 
 // Таймеры
 Timers.OnPlayerTimer.Add(function (timer) {
-	if (timer.Id == "clear") {
-		return timer.Player.Ui.Hint.Reset();
-	}
+	if (timer.Id == "clear") return timer.Player.Ui.Hint.Reset();
 	if (!timer.Player.IsAlive) return;
 	if (timer.Id.slice(0, 5) == "plant") {
 		const area = AreaService.Get(timer.Id.replace("plant", ""));
@@ -447,10 +463,8 @@ function StartGame() {
 
 function StartWarmup() {
 	state.Value = "warmup";
-	let plant_areas = AreaService.GetByTag("plant");
 	msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
-	for (indx in plant_areas) {
-		let a = plant_areas[indx];
+	AreaService.GetByTag("plant").forEach(function(elem) {
 		let e = a.Ranges.GetEnumerator();
 		while (e.moveNext()) {
 			let range = e.Current;
@@ -462,9 +476,9 @@ function StartWarmup() {
 			AreaService.Get(rnd_name).Tags.Add("_plant");
 			AreaService.Get(rnd_name).Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
 		}
-		a.Tags.Clear();
-		a.Ranges.Clear();
-	}
+		elem.Tags.Clear();
+		elem.Ranges.Clear();
+	});
 	Damage.GetContext().DamageIn.Value = true;
 	Spawns.GetContext().RespawnEnable = true;
 	SpawnTeams();
@@ -485,11 +499,10 @@ function WaitingRound() {
 	Inventory.GetContext().Secondary.Value = false;
 	Inventory.GetContext().Explosive.Value = false;
 	Properties.GetContext().Get("bomb").Value = false;
-	const areas = AreaService.GetByTag("defuse");
-	for (let i = 0; i < areas.length; i++) {
-		areas[i].Tags.Add("_plant");
-		areas[i].Tags.Remove("defuse");
-	}
+	AreaService.GetByTag("defuse").forEach(function(elem) {
+		elem.Tags.Add("_plant");
+		elem.Tags.Remove("defuse");
+	});
 	main_timer.Restart(PRE_ROUND_TIME);
 	AddBombToRandom();
 }
