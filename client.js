@@ -97,7 +97,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	msg.Show(true);
+	msg.Show(p.Team.Id);
 });
 
 Damage.OnDeath.Add(function (p) {
