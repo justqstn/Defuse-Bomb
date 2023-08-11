@@ -97,7 +97,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	if (state.Value != "round" || !p.IsAlive) return;
+	if (state.Value != "round" || p.Properties.Get("dead").Value) return;
 	p.Team.Properties.Get("plrs").Value--;
 	if (p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
 });
@@ -109,6 +109,7 @@ Damage.OnDeath.Add(function (p) {
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
+		p.Properties.Get("dead").Value = true;
 		p.Inventory.Main.Value = false;
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
@@ -145,7 +146,10 @@ Damage.OnKill.Add(function (p, _k) {
 
 Spawns.OnSpawn.Add(function(p) {
 	if (p.Properties.Scores.Value > MAX_MONEY) p.Properties.Scores.Value = MAX_MONEY;
-	if (state.Value == "waiting") p.Timers.Get("clear").Restart(PRE_ROUND_TIME); 
+	if (state.Value == "waiting") {
+		p.Timers.Get("clear").Restart(PRE_ROUND_TIME); 
+		p.Properties.Get("dead").Value = true;
+	}
 });
 
 // Зоны
