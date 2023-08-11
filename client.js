@@ -98,7 +98,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 
 Players.OnPlayerDisconnected.Add(function (p) {
 	try {
-		p.Team.Properties.Get("plrs").Value--;
+		p.Properties.Deaths.Value++;
 	} catch(e) { msg.Show(e.name + " " + e.message); }
 });
 
