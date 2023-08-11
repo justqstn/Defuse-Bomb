@@ -68,7 +68,12 @@ LeaderBoard.PlayerLeaderBoardValues = [
 		Value: "defkit",
 		DisplayName: "Сапер",
 		ShortDisplayName: "Сапер"
-	}
+	},
+	{
+		Value: "team",
+		DisplayName: "Сапер",
+		ShortDisplayName: "Сапер"
+	},
 ];
 LeaderBoard.PlayersWeightGetter.Set(function (p) {
 	return p.Properties.Get("Kills").Value;
@@ -88,6 +93,7 @@ Teams.OnRequestJoinTeam.Add(function (p, t) {
 });
 
 Teams.OnPlayerChangeTeam.Add(function (p) {
+	p.Properties.Get("team").Value = p.Team.Id;
 	if (state.Value == "round" || state.Value == "end_round") {
 		p.Spawns.Spawn();
 		p.Spawns.Despawn();
@@ -97,7 +103,10 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	msg.Show(p.Team.Id);
+	if (state.Value == "round") {
+		msg.Show(p.Properties.Get("team").Value);
+		Teams.Get(p.Properties.Get("team").Value).Properties.Get("plrs").Value--;
+	}
 });
 
 Damage.OnDeath.Add(function (p) {
