@@ -126,10 +126,10 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
-			let t = Teams.Get(c.Player.Properties.Get("team").Value);
-			t.Properties.Get("plrs").Value--;
-			if (!is_planted.Value && t.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(t));
-			if (t == ct_team && is_planted.Value && t.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+			let team = Teams.Get(c.Player.Properties.Get("team").Value);
+			team.Properties.Get("plrs").Value--;
+			if (!is_planted.Value && team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(team));
+			if (team == ct_team && is_planted.Value && team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 			break;
 	}
 });
