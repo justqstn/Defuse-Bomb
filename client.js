@@ -88,7 +88,6 @@ Teams.OnRequestJoinTeam.Add(function (p, t) {
 });
 
 Teams.OnPlayerChangeTeam.Add(function (p) {
-	p.Properties.Get("team").Value = p.Team.Id;
 	if (state.Value == "round" || state.Value == "end_round") {
 		p.Spawns.Spawn();
 		p.Spawns.Despawn();
@@ -97,9 +96,15 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 	} else p.Spawns.Spawn();
 });
 
-function e_death(p) {
+Players.OnPlayerDisconnected.Add(function (p) {
+	try {
+		p.Team.Properties.Get("plrs").Value--;
+	} catch(e) { msg.Show(e.name + " " + e.message); }
+});
+
+Damage.OnDeath.Add(function (p) {
 	if (state.Value == "round") {
-		p.Properties.Get("plrs").Value--;
+		p.Properties.Deaths.Value++;
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
@@ -108,13 +113,8 @@ function e_death(p) {
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
 		p.contextedProperties.MaxHp.Value = 100;
-		p.Properties.Deaths.Value++;
 	}
-}
-
-Players.OnPlayerDisconnected.Add(e_death);
-
-Damage.OnDeath.Add(e_death);
+});
 
 Properties.OnPlayerProperty.Add(function(c, v) {
 	switch(v.Name) {
@@ -122,6 +122,7 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
+			c.Player.Team.Properties.Get("plrs").Value--;
 			if (!is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
 			if (c.Player.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 			break;
