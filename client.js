@@ -97,9 +97,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	if (state.Value != "round" || p.Properties.Get("dead").Value) return;
-	p.Team.Properties.Get("plrs").Value--;
-	if (p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
+	if (state.Value == "round" && p.Properties.Get("alive").Value) p.Team.Properties.Get("plrs").Value--;
 });
 
 Damage.OnDeath.Add(function (p) {
@@ -109,7 +107,7 @@ Damage.OnDeath.Add(function (p) {
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
-		p.Properties.Get("dead").Value = true;
+		p.Properties.Get("alive").Value = false;
 		p.Inventory.Main.Value = false;
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
@@ -148,7 +146,7 @@ Spawns.OnSpawn.Add(function(p) {
 	if (p.Properties.Scores.Value > MAX_MONEY) p.Properties.Scores.Value = MAX_MONEY;
 	if (state.Value == "waiting") {
 		p.Timers.Get("clear").Restart(PRE_ROUND_TIME); 
-		p.Properties.Get("dead").Value = true;
+		p.Properties.Get("true").Value = true;
 	}
 });
 
@@ -492,12 +490,11 @@ function StartWarmup() {
 	main_timer.Restart(WARMUP_TIME);
 }
 function WaitingRound() {
+	state.Value = "waiting";
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	TeamsBalancer.IsAutoBalance = true;
 	Damage.GetContext().DamageIn.Value = false;
-	state.Value = "waiting";
-	SpawnTeams();
 	Ui.GetContext().Hint.Value = "Покупайте оружиe";
 	AreasEnable(true);
 	Inventory.GetContext().Main.Value = false;
@@ -510,6 +507,7 @@ function WaitingRound() {
 		areas[i].Tags.Remove("defuse");
 	}
 	main_timer.Restart(PRE_ROUND_TIME);
+	SpawnTeams();
 	AddBombToRandom();
 }
 
