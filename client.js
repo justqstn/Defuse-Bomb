@@ -121,12 +121,12 @@ Damage.OnDeath.Add(function (p) {
 });
 
 Properties.OnPlayerProperty.Add(function(c, v) {
+	let tm = Teams.Get(c.Player.Properties.Get("team").Value);
 	switch(v.Name) {
 		case "Scores":
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
-			let tm = Teams.Get(c.Player.Properties.Get("team").Value);
 			tm.Properties.Get("plrs").Value--;
 			if (!is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(tm));
 			if (tm == ct_team && is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(t_team);
