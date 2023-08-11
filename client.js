@@ -97,12 +97,11 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	if (state.Value == "round" && p.Properties.Get("alive").Value) p.Team.Properties.Get("plrs").Value--;
+	if (state.Value == "round") p.Properties.Deaths.Value++;
 });
 
 Damage.OnDeath.Add(function (p) {
 	if (state.Value == "round") {
-		p.Team.Properties.Get("plrs").Value--;
 		p.Properties.Deaths.Value++;
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
@@ -121,6 +120,7 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
+			c.Player.Team.Properties.Get("plrs").Value--;
 			if (!is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
 			if (c.Player.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 			break;
