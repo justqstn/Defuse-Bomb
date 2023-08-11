@@ -94,6 +94,10 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 		p.Ui.Hint.Value = "Игра уже началась. Ждите конца игры";
 		p.Timers.Get("clear").Restart(10);
 	} else p.Spawns.Spawn();
+	if (p.Team != null) {
+		msg.Show(true);
+		p.Properties.Get("team").Value = p.Team.Id;
+	} else msg.Show(false);
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
@@ -122,9 +126,10 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
-			c.Player.Team.Properties.Get("plrs").Value--;
-			if (!is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
-			if (c.Player.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+			let tm = Teams.Get(c.Player.Properties.Get("team").Value);
+			tm.Properties.Get("plrs").Value--;
+			if (!is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(tm));
+			if (tm == ct_team && is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 			break;
 	}
 });
