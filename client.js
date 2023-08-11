@@ -99,7 +99,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 
 function e_death(p) {
 	if (state.Value == "round") {
-		c.Player.Team.Properties.Get("plrs").Value--;
+		p.Properties.Get("plrs").Value--;
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
