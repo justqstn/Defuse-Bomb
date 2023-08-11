@@ -123,7 +123,7 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			break;
 		case "Deaths":
 			if (!is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
-			if (p.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+			if (c.Player.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 			break;
 	}
 });
