@@ -68,12 +68,7 @@ LeaderBoard.PlayerLeaderBoardValues = [
 		Value: "defkit",
 		DisplayName: "Сапер",
 		ShortDisplayName: "Сапер"
-	},
-	{
-		Value: "team",
-		DisplayName: "Сапер",
-		ShortDisplayName: "Сапер"
-	},
+	}
 ];
 LeaderBoard.PlayersWeightGetter.Set(function (p) {
 	return p.Properties.Get("Kills").Value;
