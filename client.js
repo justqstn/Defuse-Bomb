@@ -97,11 +97,9 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	if (state.Value == "round") {
-		p.Team.Properties.Get("plrs").Value--;
-		if (!is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
-		if (p.Team == ct_team && is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
-	}
+	p.Team.Properties.Get("plrs").Value--;
+	if (!is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(p.Team));
+	if (p.Team == ct_team && is_planted.Value && p.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 });
 
 Damage.OnDeath.Add(function (p) {
