@@ -98,10 +98,8 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function (p) {
-	if (state.Value == "round") {
-		msg.Show(p.Properties.Get("team").Value);
-		Teams.Get(p.Properties.Get("team").Value).Properties.Get("plrs").Value--;
-	}
+	msg.Show("t" + p.Properties.Get("team").Value);
+	Teams.Get(p.Properties.Get("team").Value).Properties.Get("plrs").Value--;
 });
 
 Damage.OnDeath.Add(function (p) {
