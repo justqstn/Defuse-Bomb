@@ -97,14 +97,9 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 	} else p.Spawns.Spawn();
 });
 
-Players.OnPlayerDisconnected.Add(function (p) {
-	msg.Show("t" + p.Properties.Get("team").Value);
-	Teams.Get(p.Properties.Get("team").Value).Properties.Get("plrs").Value--;
-});
-
-Damage.OnDeath.Add(function (p) {
+function e_death(p) {
 	if (state.Value == "round") {
-		p.Properties.Deaths.Value++;
+		c.Player.Team.Properties.Get("plrs").Value--;
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
@@ -113,8 +108,13 @@ Damage.OnDeath.Add(function (p) {
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
 		p.contextedProperties.MaxHp.Value = 100;
+		p.Properties.Deaths.Value++;
 	}
-});
+}
+
+Players.OnPlayerDisconnected.Add(e_death);
+
+Damage.OnDeath.Add(e_death);
 
 Properties.OnPlayerProperty.Add(function(c, v) {
 	switch(v.Name) {
@@ -122,7 +122,6 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
-			c.Player.Team.Properties.Get("plrs").Value--;
 			if (!is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(c.Player.Team));
 			if (c.Player.Team == ct_team && is_planted.Value && c.Player.Team.Properties.Get("plrs").Value <= 0) EndRound(t_team);
 			break;
