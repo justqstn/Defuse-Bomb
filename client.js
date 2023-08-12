@@ -94,16 +94,6 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 		p.Ui.Hint.Value = "Игра уже началась. Ждите конца игры";
 		p.Timers.Get("clear").Restart(10);
 	} else p.Spawns.Spawn();
-	if (p.Team != null) {
-		msg.Show(true);
-		p.Properties.Get("team").Value = p.Team.Id;
-	} else {
-		msg.Show(p.Properties.Get("team").Value);
-		let tm = Teams.Get(c.Player.Properties.Get("team").Value);
-		tm.Properties.Get("plrs").Value--;
-		if (!is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(tm));
-		if (tm == ct_team && is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(t_team);
-	}
 });
 
 Damage.OnDeath.Add(function (p) {
@@ -120,23 +110,26 @@ Damage.OnDeath.Add(function (p) {
 	}
 });
 
+Players.OnPlayerDisconnected.Add(function(p) {
+	if (c_GetAlivePlayersCount(t_team) <= 0 && !is_planted.Value) return EndRound(ct_team);
+	if (c_GetAlivePlayersCount(ct_team) <= 0) return EndRound(t_team);
+});
+
 Properties.OnPlayerProperty.Add(function(c, v) {
-	let tm = Teams.Get(c.Player.Properties.Get("team").Value);
 	switch(v.Name) {
 		case "Scores":
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
-			tm.Properties.Get("plrs").Value--;
-			if (!is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(AnotherTeam(tm));
-			if (tm == ct_team && is_planted.Value && tm.Properties.Get("plrs").Value <= 0) EndRound(t_team);
+			if (!is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(AnotherTeam(c.Player.Team));
+			if (c.Player.Team == ct_team && is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(t_team);
 			break;
 	}
 });
 
 Properties.OnTeamProperty.Add(function(c, v) {
 	if (v.Name != "hint") {
-		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c.Team.Properties.Get("plrs").Value || "-") + " >"; 
+		c.Team.Properties.Get("hint").Value = "< Победы: " + c.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(c.Team) || "-") + " >"; 
 	}
 });
 
@@ -405,6 +398,12 @@ function AnotherTeam(t) {
 	else return t_team;
 }
 
+function c_GetAlivePlayersCount(t){
+	ret = 0;
+	for(e = Players.GetEnumerator(); e.MoveNext();) if (e.Current.Team == t && e.Current.Spawns.IsSpawned) ret++;
+	return ret;
+}
+
 function AddBombToRandom() {
 	if (t_team.Count == 0) return;
 	let plrs = [], e = Players.GetEnumerator();
@@ -519,8 +518,8 @@ function WaitingRound() {
 }
 
 function StartRound() {
-	t_team.Properties.Get("plrs").Value = t_team.Count;
-	ct_team.Properties.Get("plrs").Value = ct_team.Count;
+	t_team.Properties.Get("plrs").Value = c_GetAlivePlayersCount(t_team);
+	ct_team.Properties.Get("plrs").Value = c_GetAlivePlayersCount(ct_team);
 	TeamsBalancer.IsAutoBalance = false;
 	AreasEnable(false);
 	Damage.GetContext().DamageIn.Value = true;
