@@ -12,5 +12,19 @@
       "Name": "Карты закладки бомбы"
     }
   ],
-  "Parameters": {}
+  "Parameters": {
+    "Bool": [
+      {
+        "Name": "MapRotation",
+        "DisplayName": "GmParams/MapRotation",
+        "Default": true
+      },
+      {
+        "Name": "short_game",
+        "DisplayName": "Короткая игра (16 раундов вместо 30)",
+        "Default": true
+      }
+    ]
+  }
+  }
 }
