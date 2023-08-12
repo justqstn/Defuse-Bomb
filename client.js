@@ -111,8 +111,10 @@ Damage.OnDeath.Add(function (p) {
 });
 
 Players.OnPlayerDisconnected.Add(function(p) {
-	if (c_GetAlivePlayersCount(t_team) <= 0 && !is_planted.Value) return EndRound(ct_team);
-	if (c_GetAlivePlayersCount(ct_team) <= 0) return EndRound(t_team);
+	if (state.Value == "round") {
+		if (c_GetAlivePlayersCount(t_team) <= 0 && !is_planted.Value) return EndRound(ct_team);
+		if (c_GetAlivePlayersCount(ct_team) <= 0) return EndRound(t_team);
+	}
 });
 
 Properties.OnPlayerProperty.Add(function(c, v) {
@@ -121,6 +123,7 @@ Properties.OnPlayerProperty.Add(function(c, v) {
 			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
 			break;
 		case "Deaths":
+			c.Player.Team.Properties.Get("hint").Value = "< Победы: " + c.Player.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(c.Player.Team) || "-") + " >"; 
 			if (!is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(AnotherTeam(c.Player.Team));
 			if (c.Player.Team == ct_team && is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(t_team);
 			break;
@@ -400,7 +403,7 @@ function AnotherTeam(t) {
 
 function c_GetAlivePlayersCount(t){
 	ret = 0;
-	for(e = Players.GetEnumerator(); e.MoveNext();) if (e.Current.Team == t && e.Current.Spawns.IsSpawned) ret++;
+	for(e = Players.GetEnumerator(); e.MoveNext();) if (e.Current.Team == t && e.Current.Spawns.IsSpawned && e.Current.IsAlive) ret++;
 	return ret;
 }
 
