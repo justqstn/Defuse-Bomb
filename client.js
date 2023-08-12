@@ -521,8 +521,8 @@ function WaitingRound() {
 }
 
 function StartRound() {
-	t_team.Properties.Get("plrs").Value = c_GetAlivePlayersCount(t_team);
-	ct_team.Properties.Get("plrs").Value = c_GetAlivePlayersCount(ct_team);
+	t_team.Properties.Get("hint").Value = "< Победы: " + t_team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(t_team) || "-") + " >"; 
+	ct_team.Properties.Get("hint").Value = "< Победы: " + ct_team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(ct_team) || "-") + " >"; 
 	TeamsBalancer.IsAutoBalance = false;
 	AreasEnable(false);
 	Damage.GetContext().DamageIn.Value = true;
