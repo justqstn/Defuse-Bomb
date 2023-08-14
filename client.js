@@ -460,35 +460,37 @@ function StartGame() {
 }
 
 function StartWarmup() {
-	state.Value = "warmup";
-	let plant_areas = AreaService.GetByTag("plant");
-	msg.Show("<B>Приятной игры!</B>", "<B>Режим от just_qstn</B>");
-	for (indx in plant_areas) {
-		let a = plant_areas[indx];
-		let e = a.Ranges.GetEnumerator();
-		while (e.moveNext()) {
-			let range = e.Current;
-			const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
-			let rnd_name = "";
-			for (let i = 0; i < 6; i++) {
-				rnd_name += letters[GetRandom(0, letters.length - 1)];
+	try {
+		state.Value = "warmup";
+		let plant_areas = AreaService.GetByTag("plant");
+		for (indx in plant_areas) {
+			let a = plant_areas[indx];
+			let e = a.Ranges.GetEnumerator();
+			while (e.moveNext()) {
+				let range = e.Current;
+				const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
+				let rnd_name = "";
+				for (let i = 0; i < 6; i++) {
+					rnd_name += letters[GetRandom(0, letters.length - 1)];
+				}
+				let rnd = AreaService.Get(rnd_name);
+				rnd.Tags.Add("_plant");
+				AreaViewService.Get(rnd_name).Color = { r: 0, g: 1 };
+				AreaViewService.Get(rnd_name).Area = rnd;
+				AreaViewService.Get(rnd_name).Enable = true;
+				rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
 			}
-			let rnd = AreaService.Get(rnd_name);
-			rnd.Tags.Add("_plant");
-			AreaViewService.Get(rnd_name).Color = {r: 0, g: 1};
-			AreaViewService.Get(rnd_name).Area = rnd;
-			AreaViewService.Get(rnd_name).Enable = true;
-			AreaService.Get(rnd_name).Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
+			a.Tags.Clear();
+			a.Ranges.Clear();
 		}
-		a.Tags.Clear();
-		a.Ranges.Clear();
-	}
-	Damage.GetContext().DamageIn.Value = true;
-	Spawns.GetContext().RespawnEnable = true;
-	SpawnTeams();
-	Ui.GetContext().Hint.Value = "Разминка";
-	main_timer.Restart(WARMUP_TIME);
+		Damage.GetContext().DamageIn.Value = true;
+		Spawns.GetContext().RespawnEnable = true;
+		SpawnTeams();
+		Ui.GetContext().Hint.Value = "Разминка";
+		main_timer.Restart(WARMUP_TIME);
+	} catch (e) { msg.Show(e.name + " " + e.message); }
 }
+
 function WaitingRound() {
 	state.Value = "waiting";
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
