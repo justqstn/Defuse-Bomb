@@ -1,5 +1,4 @@
 // Закладка бомбы от just_qstn
-// v1
 
 /* MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discord: дурак и психопат!#5687)
     
@@ -307,30 +306,20 @@ plant_trigger.OnEnter.Add(function (p, a) {
 		if (state.Value != "round") return p.Ui.Hint.Value = "Место закладки бомбы";
 		if (!p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "У вас нет бомбы.";
 		p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "сек. в зоне чтобы заложить бомбу";
-		p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
+		return p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
 	}
-});
-
-plant_trigger.OnExit.Add(function (p, a) {
-	if (p.Team == t_team) {
-		p.Ui.Hint.Reset();
-		p.Timers.Get("plant" + a.Name).Stop();
-	}
-});
-
-defuse_trigger.OnEnter.Add(function (p, a) {
-	if (p.Team == ct_team) {
+	if (is_planted.Value && p.Team == ct_team && AreaViewService.Get(a.Name).Color.r == 1) {
+		if (state.Value != "round") return p.Ui.Hint.Value = "Место разминирования бомбы";
 		let def_time = p.Properties.Get("defkit").Value ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
 		p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
 		p.Timers.Get("defuse" + a.Name).Restart(def_time);
 	}
 });
 
-defuse_trigger.OnExit.Add(function (p, a) {
-	if (p.Team == ct_team) {
-		p.Ui.Hint.Reset();
-		p.Timers.Get("defuse" + a.Name).Stop();
-	}
+plant_trigger.OnExit.Add(function (p, a) {
+	p.Ui.Hint.Reset();
+	if (p.Team == t_team) return p.Timers.Get("plant" + a.Name).Stop();
+	else return p.Timers.Get("defuse" + a.Name).Stop();
 });
 
 // Таймеры
@@ -338,23 +327,21 @@ Timers.OnPlayerTimer.Add(function (timer) {
 	if (timer.Id == "clear") return timer.Player.Ui.Hint.Reset();
 	if (!timer.Player.IsAlive) return;
 	if (timer.Id.slice(0, 5) == "plant") {
-		const area = AreaService.Get(timer.Id.replace("plant", ""));
-		if (area.Tags.Contains("defuse") || is_planted.Value || state.Value != "round") return;
+		const area_name = timer.Id.replace("plant", "");
+		if (AreaViewService.Get(area_name).Color.r == 1 || is_planted.Value || state.Value != "round") return;
 		Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
 		is_planted.Value = true;
 		main_timer.Restart(BEFORE_PLANTING_TIME);
 		timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
 		timer.Player.Properties.Get("bomb").Value = false;
-		area.Tags.Remove("_plant");
-		area.Tags.Add("defuse");
+		AreaViewService.Get(area_name).Color = {r: 1, g: 0};
 	}
 	if (timer.Id.slice(0, 6) == "defuse") {
-		const area = AreaService.Get(timer.Id.replace("defuse", ""));
-		if (area.Tags.Contains("_plant") || state.Value != "round") return;
+		const area_name = AreaService.Get(timer.Id.replace("defuse", ""));
+		if (AreaViewService.Get(area_name).Color.r == 0 || state.Value != "round") return;
 		is_planted.Value = false;
 		timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
-		area.Tags.Remove("defuse");
-		area.Tags.Add("_plant");
+		AreaViewService.Get(area_name).Color = {r: 0, g: 1};
 		EndRound(ct_team);
 	}
 });
@@ -486,7 +473,11 @@ function StartWarmup() {
 			for (let i = 0; i < 6; i++) {
 				rnd_name += letters[GetRandom(0, letters.length - 1)];
 			}
-			AreaService.Get(rnd_name).Tags.Add("_plant");
+			let rnd = AreaService.Get(rnd_name);
+			rnd.Tags.Add("_plant");
+			AreaViewService.Get(rnd_name).Color = {r: 0, g: 1};
+			AreaViewService.Get(rnd_name).Area = rnd;
+			AreaViewService.Get(rnd_name).Enable = true;
 			AreaService.Get(rnd_name).Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
 		}
 		a.Tags.Clear();
@@ -512,8 +503,7 @@ function WaitingRound() {
 	Properties.GetContext().Get("bomb").Value = false;
 	const areas = AreaService.GetByTag("defuse");
 	for (let i = 0; i < areas.length; i++) {
-		areas[i].Tags.Add("_plant");
-		areas[i].Tags.Remove("defuse");
+		AreaViewService.Get(areas[i].Name).Color = {r: 0, g: 1};
 	}
 	main_timer.Restart(PRE_ROUND_TIME);
 	SpawnTeams();
@@ -528,7 +518,7 @@ function StartRound() {
 	Damage.GetContext().DamageIn.Value = true;
 	state.Value = "round";
 	Spawns.GetContext().RespawnEnable = false;
-	Ui.GetContext().Hint.Value = "Закладка бомбы";
+	Ui.GetContext().Hint.Value = "Закладка бомбы. Раунд " + (round.Value + 1); 
 	main_timer.Restart(ROUND_TIME);
 	MapEditor.SetBlock(AreaService.Get("bd"), 0);
 	MapEditor.SetBlock(AreaService.Get("bd"), 0);
@@ -553,11 +543,11 @@ function EndRound(t) {
 	aTeam.Properties.Get("loses").Value++;
 
 	if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
-	if (round.Value >= ROUNDS) return EndGame();
+	if (round.Value >= ROUNDS && ct_team.Properties.Get("wins").Value != t_team.Properties.Get("wins").Value) EndGame();
 }
 
 function TeamChange() {
-	const t_wins = t_team.Properties.Get("wins").Value, t_loses = t_team.Properties.Get("loses").Value, ct_wins = ct_team.Properties.Get("wins").Value, ct_loses = ct_team.Properties.Get("loses").Value;
+	const t_wins = t_team.Properties.Get("wins").Value, ct_wins = ct_team.Properties.Get("wins").Value;
 	let iter = Players.GetEnumerator();
 	while (iter.moveNext()) {
 		iter.Current.Properties.Scores.Value = DEFAULT_MONEY;
@@ -569,9 +559,9 @@ function TeamChange() {
 		if (iter.Current.Team == ct_team) t_team.Add(iter.Current);
 	}
 	t_team.Properties.Get("wins").Value = ct_wins;
-	t_team.Properties.Get("loses").Value = ct_loses;
+	t_team.Properties.Get("loses").Value = 0;
 	ct_team.Properties.Get("wins").Value = t_wins;
-	ct_team.Properties.Get("loses").Value = t_loses;
+	ct_team.Properties.Get("loses").Value = 0;
 }
 
 function EndGame() {
