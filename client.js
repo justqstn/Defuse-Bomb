@@ -520,7 +520,7 @@ function StartRound() {
 	Damage.GetContext().DamageIn.Value = true;
 	state.Value = "round";
 	Spawns.GetContext().RespawnEnable = false;
-	Ui.GetContext().Hint.Value = "Закладка бомбы. Раунд " + (round.Value + 1); 
+	Ui.GetContext().Hint.Value = "Закладка бомбы. Раунд " + (round.Value + 1) + "/" + ROUNDS;
 	main_timer.Restart(ROUND_TIME);
 	MapEditor.SetBlock(AreaService.Get("bd"), 0);
 	MapEditor.SetBlock(AreaService.Get("bd"), 0);
