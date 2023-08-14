@@ -21,7 +21,7 @@
       },
       {
         "Name": "short_game",
-        "DisplayName": "Короткая игра (15 раундов вместо 30)",
+        "DisplayName": "Короткая игра (16 раундов вместо 30)",
         "Default": true
       }
     ]
