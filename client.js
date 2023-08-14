@@ -308,7 +308,7 @@ plant_trigger.OnEnter.Add(function (p, a) {
 		p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "сек. в зоне чтобы заложить бомбу";
 		return p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
 	}
-	if (is_planted.Value && p.Team == ct_team && AreaViewService.Get(a.Name).Color.r == 1) {
+	if (is_planted.Value && p.Team == ct_team && AreaViewService.GetContext().Get(a.Name).Color.r == 1) {
 		if (state.Value != "round") return p.Ui.Hint.Value = "Место разминирования бомбы";
 		let def_time = p.Properties.Get("defkit").Value ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
 		p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
@@ -328,20 +328,20 @@ Timers.OnPlayerTimer.Add(function (timer) {
 	if (!timer.Player.IsAlive) return;
 	if (timer.Id.slice(0, 5) == "plant") {
 		const area_name = timer.Id.replace("plant", "");
-		if (AreaViewService.Get(area_name).Color.r == 1 || is_planted.Value || state.Value != "round") return;
+		if (AreaViewService.GetContext().Get(area_name).Color.r == 1 || is_planted.Value || state.Value != "round") return;
 		Ui.GetContext().Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
 		is_planted.Value = true;
 		main_timer.Restart(BEFORE_PLANTING_TIME);
 		timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
 		timer.Player.Properties.Get("bomb").Value = false;
-		AreaViewService.Get(area_name).Color = {r: 1, g: 0};
+		AreaViewService.GetContext().Get(area_name).Color = {r: 1, g: 0};
 	}
 	if (timer.Id.slice(0, 6) == "defuse") {
 		const area_name = AreaService.Get(timer.Id.replace("defuse", ""));
-		if (AreaViewService.Get(area_name).Color.r == 0 || state.Value != "round") return;
+		if (AreaViewService.GetContext().Get(area_name).Color.r == 0 || state.Value != "round") return;
 		is_planted.Value = false;
 		timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
-		AreaViewService.Get(area_name).Color = {r: 0, g: 1};
+		AreaViewService.GetContext().Get(area_name).Color = {r: 0, g: 1};
 		EndRound(ct_team);
 	}
 });
@@ -475,9 +475,9 @@ function StartWarmup() {
 				}
 				let rnd = AreaService.Get(rnd_name);
 				rnd.Tags.Add("_plant");
-				AreaViewService.Get(rnd_name).Color = { r: 0, g: 1 };
-				AreaViewService.Get(rnd_name).Area = rnd;
-				AreaViewService.Get(rnd_name).Enable = true;
+				AreaViewService.GetContext().Get(rnd_name).Color = { r: 0, g: 1 };
+				AreaViewService.GetContext().Get(rnd_name).Area = rnd;
+				AreaViewService.GetContext().Get(rnd_name).Enable = true;
 				rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
 			}
 			a.Tags.Clear();
@@ -505,7 +505,7 @@ function WaitingRound() {
 	Properties.GetContext().Get("bomb").Value = false;
 	const areas = AreaService.GetByTag("defuse");
 	for (let i = 0; i < areas.length; i++) {
-		AreaViewService.Get(areas[i].Name).Color = {r: 0, g: 1};
+		AreaViewService.GetContext().Get(areas[i].Name).Color = {r: 0, g: 1};
 	}
 	main_timer.Restart(PRE_ROUND_TIME);
 	SpawnTeams();
