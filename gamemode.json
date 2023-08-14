@@ -1,6 +1,6 @@
 {
   "Name": "<B><color=#FFE4B5>Закладка</color> <color=#B0E0E6>бомбы</color></B>",
-  "Description": "<B>v1.0.3 - фикс багов, улучшенный интерфейс, короткая игра. Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
+  "Description": "<B>v1.0.4 - фикс багов, блеклист, мелкие изменения. Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
   "StartClientVersion": 334,
   "MapFilter": {
     "IsBlank": false,
