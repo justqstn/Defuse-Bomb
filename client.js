@@ -12,7 +12,7 @@
 
 
 // Константы
-const ROUNDS = GameMode.Parameters.GetBool("short_game") ? 15 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+const BLACKLIST = "C3EB1387A99FC76ED", ROUNDS = GameMode.Parameters.GetBool("short_game") ? 15 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
 	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500, MAX_LOSS_BONUS = 5;
 
 // Переменные
@@ -109,6 +109,14 @@ Damage.OnDeath.Add(function (p) {
 	}
 });
 
+Players.OnPlayerConnected.Add(function(p) {
+	if (BLACKLIST.search(p.Id) != -1) {
+		p.Spawns.Spawn();
+		p.Spawns.Despawn();
+		p.Properties.Get("banned").Value = true;
+	}
+});
+
 Players.OnPlayerDisconnected.Add(function(p) {
 	if (state.Value == "round") {
 		if (c_GetAlivePlayersCount(t_team) <= 0 && !is_planted.Value) return EndRound(ct_team);
@@ -145,6 +153,7 @@ Damage.OnKill.Add(function (p, _k) {
 });
 
 Spawns.OnSpawn.Add(function(p) {
+	if (p.Properties.Get("banned").Value) return p.Spawns.Despawn();
 	if (p.Properties.Scores.Value > MAX_MONEY) p.Properties.Scores.Value = MAX_MONEY;
 	if (state.Value == "waiting") {
 		p.Timers.Get("clear").Restart(PRE_ROUND_TIME); 
@@ -455,6 +464,14 @@ function StartGame() {
 	Spawns.GetContext().RespawnEnable = false;
 	Ui.GetContext().Hint.Value = "Загрузка режима";
 	AreasEnable(false);
+	for (let e = Players.GetEnumerator(); e.moveNext();) {
+		if (BLACKLIST.search(e.Current.Id) != -1) {
+			e.Current.Spawns.Spawn();
+			e.Current.Spawns.Despawn();
+			e.Current.Properties.Get("banned").Value = true;
+			if (e.Current.Team != null) e.Current.Team.Remove(e.Current);
+		}
+	}
 	main_timer.Restart(LOADING_TIME);
 	InitAreas();
 }
