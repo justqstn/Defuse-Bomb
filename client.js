@@ -391,7 +391,7 @@ try {
 			}
 			let indx = p.Properties.Get("index");
 			let plr = Players.GetByRoomId(players[indx.Value])
-			p.Properties.Hint.Value = "забанен " + plr.NickName + "\nid: " + plr.Id + "\nbanned: ";
+			p.Ui.Hint.Value = "забанен " + plr.NickName + "\nid: " + plr.Id;
 			plr.Spawns.Spawn();
 			plr.Spawns.Despawn();
 			plr.Properties.Get("banned").Value;
