@@ -541,7 +541,7 @@ Spawns.GetContext().RespawnEnable = false;
 Ui.GetContext().Hint.Value = "Загрузка режима";
 AreasEnable(false);
 for (let e = Players.GetEnumerator(); e.moveNext();) {
-	if (BLACKLIST.search(e.Current.Id) != -1) {
+	if (BLACKLIST.Value.search(e.Current.Id) != -1) {
 		e.Current.Spawns.Spawn();
 		e.Current.Spawns.Despawn();
 		e.Current.Properties.Get("banned").Value = true;
