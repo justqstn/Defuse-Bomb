@@ -12,13 +12,13 @@
 
 
 // Константы
-const BLACKLIST = "C3EB1387A99FC76ED 5303A9CB14240FFD", ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+const ADMIN = "9DE9DFD7D1F5C16A", ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
 	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500, MAX_LOSS_BONUS = 5;
 
 // Переменные
-let state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
+let cnt = 0, last_rid = 0, BLACKLIST = Properties.GetContext().Get("banned"); state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
 main_wp_trigger = AreaPlayerTriggerService.Get("main"), secondary_wp_trigger = AreaPlayerTriggerService.Get("secondary"), explosive_wp_trigger = AreaPlayerTriggerService.Get("explosive"), bomb_trigger = AreaPlayerTriggerService.Get("bomb"), defkit_trigger = AreaPlayerTriggerService.Get("defkit"),
-	defuse_trigger = AreaPlayerTriggerService.Get("defuse"), plant_trigger = AreaPlayerTriggerService.Get("plant"), helmet_trigger = AreaPlayerTriggerService.Get("helmet"), vest_trigger = AreaPlayerTriggerService.Get("armour");
+	defuse_trigger = AreaPlayerTriggerService.Get("defuse"), plant_trigger = AreaPlayerTriggerService.Get("plant"), helmet_trigger = AreaPlayerTriggerService.Get("helmet"), vest_trigger = AreaPlayerTriggerService.Get("armour"), next_trigger = AreaPlayerTriggerService.Get("next"), prev_trigger = AreaPlayerTriggerService.Get("prev"), ban_trigger = AreaPlayerTriggerService.Get("ban"), refresh_trigger = AreaPlayerTriggerService.Get("refresh");
 
 // Настройка
 state.Value = "loading";
@@ -27,6 +27,8 @@ round.Value = 0;
 Inventory.GetContext().Build.Value = false;
 TeamsBalancer.IsAutoBalance = true;
 BreackGraph.Damage = false;
+BLACKLIST.Value = "C3EB1387A99FC76ED 5303A9CB14240FFD";
+Map.Rotation = GameMode.Parameters.GetBool("MapRotation")
 Damage.GetContext().GranadeTouchExplosion.Value = false;
 
 // Создание команд
@@ -106,18 +108,30 @@ Damage.OnDeath.Add(function (p) {
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
 		p.contextedProperties.MaxHp.Value = 100;
+		p.Spawns.Despawn();
 	}
 });
 
 Players.OnPlayerConnected.Add(function(p) {
-	if (BLACKLIST.search(p.Id) != -1) {
+	last_rid = p.IdInRoom;
+	if (BLACKLIST.Value.search(p.Id) != -1) {
 		p.Spawns.Spawn();
 		p.Spawns.Despawn();
 		p.Properties.Get("banned").Value = true;
 	}
+	if (ADMIN.search(p.Id) != -1) {
+		p.Properties.Get("admin").Value = true;
+	}
+	else {
+		AreaViewService.GetContext(p).Get("ban").Enable = false
+		AreaViewService.GetContext(p).Get("next").Enable = false
+		AreaViewService.GetContext(p).Get("prev").Enable = false
+		AreaViewService.GetContext(p).Get("refresh").Enable = false
+	}
 });
 
 Players.OnPlayerDisconnected.Add(function(p) {
+	cnt -= p.IdInRoom;
 	if (state.Value == "round") {
 		if (c_GetAlivePlayersCount(t_team) <= 0 && !is_planted.Value) return EndRound(ct_team);
 		if (c_GetAlivePlayersCount(ct_team) <= 0) return EndRound(t_team);
@@ -331,6 +345,63 @@ plant_trigger.OnExit.Add(function (p, a) {
 	else return p.Timers.Get("defuse" + a.Name).Stop();
 });
 
+// честно, мне лень переписывать это все, ну вы и так схаваете
+let players = [];
+
+function refresh() {
+	let e = Players.GetEnumerator();
+	while (e.moveNext()) {
+		players.push(e.Current.IdInRoom)
+		cnt += e.Current.IdInRoom;
+	}
+}
+
+next_trigger.OnEnter.Add(function (p, a){
+	if (p.Properties.Get("admin").Value) {
+		if (Players.Count != players.length || last_rid == 0) refresh();
+		let indx = p.Properties.Get("index");
+		if (indx.Value < Players.Count - 1) indx.Value++;
+		else indx.Value = 0;
+		let plr = Players.GetByRoomId(players[indx.Value])
+		p.Ui.Hint.Value = (indx.Value + 1) + ". " + plr.NickName + "\nid: " + plr.Id + "\nbanned: " + plr.Properties.Get("banned").Value;
+		p.Timers.Get("clear").Restart(5);
+	}
+});
+
+prev_trigger.OnEnter.Add(function (p, a){
+	if (p.Properties.Get("admin").Value) {
+		if (Players.Count != players.length || last_rid == 0) refresh();
+		let indx = p.Properties.Get("index");
+		if (indx.Value == 0) indx.Value--;
+		else indx.Value = Players.Count - 1;
+		let plr = Players.GetByRoomId(players[indx.Value])
+		p.Ui.Hint.Value = (indx.Value + 1) + ". " + plr.NickName + "\nid: " + plr.Id + "\nbanned: " + plr.Properties.Get("banned").Value;
+		p.Timers.Get("clear").Restart(5);
+	}
+});
+
+ban_trigger.OnEnter.Add(function (p, a){
+	if (p.Properties.Get("admin").Value) {
+		p.Timers.Get("clear").Restart(5);
+		if (Players.Count != players.length || last_rid == 0) {
+			refresh();
+			return p.Ui.Hint.Value = "Перезагружен массив игроков, выберите игрока еще раз.";
+		}
+		let indx = p.Properties.Get("index");
+		let plr = Players.GetByRoomId(players[indx.Value])
+		p.Properties.Hint.Value = "забанен " + plr.NickName + "\nid: " + plr.Id + "\nbanned: ";
+		plr.Spawns.Spawn();
+		plr.Spawns.Despawn();
+		plr.Properties.Get("banned").Value;
+	}
+});
+
+refresh_trigger.OnEnter.Add(function(p, a) {
+	refresh();
+	p.Ui.Hint.Value = "Массив игроков перезагружен";
+	p.Timers.Get("clear").Restart(5);
+});
+
 // Таймеры
 Timers.OnPlayerTimer.Add(function (timer) {
 	if (timer.Id == "clear") return timer.Player.Ui.Hint.Reset();
@@ -439,6 +510,10 @@ function InitAreas() {
 	AddArea(["_plant"], "plant", rgb(0, 255, 0));
 	AddArea(["defuse"], "defuse", rgb(255, 0, 0));
 	AddArea(["helmet"], "helmet", rgb(0, 255, 0));
+	AddArea(["ban"], "ban", rgb(255, 255, 0));
+	AddArea(["next"], "next", rgb(0, 255, 0));
+	AddArea(["prev"], "prev", rgb(255, 0, 0));
+	AddArea(["refresh"], "refresh", rgb(0, 0, 255));
 }
 
 function AreasEnable(v) {
