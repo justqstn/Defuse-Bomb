@@ -360,7 +360,7 @@ try {
 
 	next_trigger.OnEnter.Add(function (p, a) {
 		if (p.Properties.Get("admin").Value) {
-			if (Players.Count != players.length || last_rid == 0) refresh();
+			if (players.length == 0) refresh();
 			let indx = p.Properties.Get("index");
 			if (indx.Value < Players.Count - 1) indx.Value++;
 			else indx.Value = 0;
@@ -372,7 +372,7 @@ try {
 
 	prev_trigger.OnEnter.Add(function (p, a) {
 		if (p.Properties.Get("admin").Value) {
-			if (Players.Count != players.length || last_rid == 0) refresh();
+			if (Players.Count != players.length) refresh();
 			let indx = p.Properties.Get("index");
 			if (indx.Value == 0) indx.Value--;
 			else indx.Value = Players.Count - 1;
@@ -385,7 +385,7 @@ try {
 	ban_trigger.OnEnter.Add(function (p, a) {
 		if (p.Properties.Get("admin").Value) {
 			p.Timers.Get("clear").Restart(5);
-			if (Players.Count != players.length || last_rid == 0) {
+			if (players.length == 0) {
 				refresh();
 				return p.Ui.Hint.Value = "Перезагружен массив игроков, выберите игрока еще раз.";
 			}
