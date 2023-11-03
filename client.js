@@ -28,7 +28,7 @@ try {
 	Inventory.GetContext().Build.Value = false;
 	TeamsBalancer.IsAutoBalance = true;
 	BreackGraph.Damage = false;
-	BLACKLIST.Value = "C3EB1387A99FC76ED 5303A9CB14240FFD";
+	BLACKLIST.Value = "C3EB1387A99FC76ED";
 	Map.Rotation = GameMode.Parameters.GetBool("MapRotation")
 	Damage.GetContext().GranadeTouchExplosion.Value = false;
 
