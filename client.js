@@ -93,6 +93,7 @@ try {
 		if (ADMIN.search(p.Id) != -1) {
 			p.Properties.Get("admin").Value = true;
 		}
+		last_rid = p.IdInRoom;
 		if (state.Value == "round" || state.Value == "end_round") {
 			p.Spawns.Spawn();
 			p.Spawns.Despawn();
