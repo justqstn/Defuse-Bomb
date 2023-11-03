@@ -395,6 +395,7 @@ try {
 			plr.Spawns.Spawn();
 			plr.Spawns.Despawn();
 			plr.Properties.Get("banned").Value;
+			BLACKLIST.Value += plr.Id;
 		}
 	});
 
