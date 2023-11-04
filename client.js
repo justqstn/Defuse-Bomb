@@ -25,7 +25,7 @@ state.Value = "loading";
 is_planted.Value = false;
 round.Value = 0;
 Inventory.GetContext().Build.Value = false;
-TeamsBalancer.IsAutoBalance = true;
+TeamsBalancer.IsAutoBalance = false;
 BreackGraph.Damage = false;
 BLACKLIST.Value = "C3EB1387A99FC76ED";
 Map.Rotation = GameMode.Parameters.GetBool("MapRotation")
@@ -34,7 +34,8 @@ Damage.GetContext().GranadeTouchExplosion.Value = false;
 // Создание команд
 Teams.Add("t", "<i><B><size=38>Т</size><size=30>еррористы</size></B>\nзакладка бомбы от just_qstn</i>", rgb(210, 150, 70));
 Teams.Add("ct", "<i><B><size=38>С</size><size=30>пецназ</size></B>\nзакладка бомбы от just_qstn</i>", rgb(70, 145, 210));
-let t_team = Teams.Get("t"), ct_team = Teams.Get("ct");
+Teams.Add("banned", "<i><B><size=38>З</size><size=30>абаненные</size></B>\nзакладка бомбы от just_qstn</i>", {m: 1});
+let t_team = Teams.Get("t"), ct_team = Teams.Get("ct"), banned_team = Teams.Get("banned");
 t_team.Spawns.SpawnPointsGroups.Add(2);
 ct_team.Spawns.SpawnPointsGroups.Add(1);
 
@@ -82,13 +83,15 @@ Ui.GetContext().MainTimerId.Value = main_timer.Id;
 
 // События
 Teams.OnRequestJoinTeam.Add(function (p, t) {
+	if (BLACKLIST.Value.search(p.Id) != -1) {
+		banned_team.Add(p);
+		p.Spawns.Spawn();
+		p.Spawns.Despawn();
+		return p.Properties.Get("banned").Value = true;
+	}
 	p.Properties.Scores.Value = DEFAULT_MONEY;
 	p.Properties.Get("bomb").Value = false;
 	p.Properties.Get("defkit").Value = false;
-	t.Add(p);
-});
-
-Teams.OnPlayerChangeTeam.Add(function (p) {
 	if (ADMIN.search(p.Id) != -1) {
 		p.Properties.Get("admin").Value = true;
 	}
@@ -99,6 +102,16 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 		AreaViewService.GetContext(p).Get("refresh").Enable = false;
 	}
 	last_rid = p.IdInRoom;
+	let ct_c = ct_team.Count - (p.Team == ct_team ? 1 : 0),
+		t_c = t_team.Count - (p.Team == t_team ? 1 : 0);
+	if (ct_c != t_c) {
+		if (ct_c < t_c) ct_team.Add(p);
+		else if (ct_c > t_c) t_team.Add(p);
+	}
+	else t.Add(p);
+});
+
+Teams.OnPlayerChangeTeam.Add(function (p) {
 	if (state.Value == "round" || state.Value == "end_round") {
 		p.Spawns.Spawn();
 		p.Spawns.Despawn();
@@ -108,7 +121,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 });
 
 Damage.OnDeath.Add(function (p) {
-	if (state.Value == "round") {
+	if (state.Value == "round" || state.Value == "end_round") {
 		p.Properties.Deaths.Value++;
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
@@ -125,6 +138,7 @@ Damage.OnDeath.Add(function (p) {
 Players.OnPlayerConnected.Add(function (p) {
 	last_rid = p.IdInRoom;
 	if (BLACKLIST.Value.search(p.Id) != -1) {
+		banned_team.Add(p);
 		p.Spawns.Spawn();
 		p.Spawns.Despawn();
 		p.Properties.Get("banned").Value = true;
@@ -159,7 +173,7 @@ Properties.OnTeamProperty.Add(function (c, v) {
 });
 
 Damage.OnKill.Add(function (p, _k) {
-	if (state.Value == "round") {
+	if (state.Value == "round" || state.Value == "end_round") {
 		if (_k.Team != null && _k.Team != p.Team) {
 			p.Properties.Kills.Value++;
 			p.Properties.Scores.Value += BOUNTY_KILL;
@@ -532,7 +546,7 @@ function SpawnTeams() {
 	Spawns.GetContext().RespawnEnable = true;
 	let e = Teams.GetEnumerator();
 	while (e.moveNext()) {
-		Spawns.GetContext(e.Current).Spawn();
+		if (e.Current != banned_team) Spawns.GetContext(e.Current).Spawn();
 	}
 }
 
@@ -546,7 +560,7 @@ function StartGame() {
 			e.Current.Spawns.Spawn();
 			e.Current.Spawns.Despawn();
 			e.Current.Properties.Get("banned").Value = true;
-			if (e.Current.Team != null) e.Current.Team.Remove(e.Current);
+			banned_team.Add(e.Current);
 		}
 	}
 	main_timer.Restart(LOADING_TIME);
