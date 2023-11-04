@@ -604,7 +604,7 @@ function WaitingRound() {
 	state.Value = "waiting";
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
 	MapEditor.SetBlock(AreaService.Get("bd"), 93);
-	TeamsBalancer.IsAutoBalance = true;
+	BalanceTeams();
 	Damage.GetContext().DamageIn.Value = false;
 	Ui.GetContext().Hint.Value = "Покупайте оружиe";
 	AreasEnable(true);
@@ -624,7 +624,6 @@ function WaitingRound() {
 function StartRound() {
 	t_team.Properties.Get("hint").Value = "< Победы: " + t_team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(t_team) || "-") + " >";
 	ct_team.Properties.Get("hint").Value = "< Победы: " + ct_team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(ct_team) || "-") + " >";
-	TeamsBalancer.IsAutoBalance = false;
 	AreasEnable(false);
 	Damage.GetContext().DamageIn.Value = true;
 	state.Value = "round";
@@ -655,6 +654,22 @@ function EndRound(t) {
 
 	if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
 	if (round.Value >= ROUNDS && ct_team.Properties.Get("wins").Value != t_team.Properties.Get("wins").Value) EndGame();
+}
+
+function BalanceTeams() {
+	let ct_plrs = [], t_plrs = [], e = Players.GetEnumerator();
+	while (e.moveNext()) {
+		if (e.Current.Team == ct_team) ct_plrs.push(e.Current.IdInRoom);
+		if (e.Current.Team == t_team) t_plrs.push(e.Current.IdInRoom);
+	}
+
+	while (ct_plrs.length - 1 > t_plrs.length) {
+		t_plrs.Add(Players.GetByRoomId(ct_plrs[ct_plrs.length - 1]));
+	}
+
+	while (t_plrs.length - 1 > ct_plrs.length) {
+		ct_plrs.Add(Players.GetByRoomId(t_plrs[t_plrs.length - 1]));
+	}
 }
 
 function TeamChange() {
