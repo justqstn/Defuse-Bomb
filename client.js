@@ -83,6 +83,7 @@ Ui.GetContext().MainTimerId.Value = main_timer.Id;
 
 // События
 Teams.OnRequestJoinTeam.Add(function (p, t) {
+	if (t == banned_team) return;
 	if (BLACKLIST.Value.search(p.Id) != -1) {
 		banned_team.Add(p);
 		p.Spawns.Spawn();
