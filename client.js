@@ -366,6 +366,8 @@ let players = [];
 
 function refresh() {
 	let e = Players.GetEnumerator();
+	players = [];
+	cnt = 0;
 	while (e.moveNext()) {
 		players.push(e.Current.IdInRoom)
 		cnt += e.Current.IdInRoom;
@@ -658,17 +660,20 @@ function EndRound(t) {
 
 function BalanceTeams() {
 	let ct_plrs = [], t_plrs = [], e = Players.GetEnumerator();
+	let ct_count = ct_team.Count, t_count = t_team.Count;
 	while (e.moveNext()) {
 		if (e.Current.Team == ct_team) ct_plrs.push(e.Current.IdInRoom);
 		if (e.Current.Team == t_team) t_plrs.push(e.Current.IdInRoom);
 	}
 
-	while (ct_plrs.length - 1 > t_plrs.length) {
+	while (ct_count - 1 > t_count) {
 		t_team.Add(Players.GetByRoomId(ct_plrs[ct_plrs.length - 1]));
+		ct_count--;
 	}
 
-	while (t_plrs.length - 1 > ct_plrs.length) {
+	while (t_count - 1 > ct_count) {
 		ct_team.Add(Players.GetByRoomId(t_plrs[t_plrs.length - 1]));
+		t_count--;
 	}
 }
 
