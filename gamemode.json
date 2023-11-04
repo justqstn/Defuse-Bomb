@@ -1,6 +1,6 @@
 {
   "Name": "<B><color=#FFE4B5>Закладка</color> <color=#B0E0E6>бомбы</color></B>",
-  "Description": "<B>v1.05 - Мелкие изменения. Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
+  "Description": "<B>v1.051 - Команда забаненных, исправлен баг 'не засчитываются киллы в конце раунда'. Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
   "StartClientVersion": 334,
   "MapFilter": {
     "IsBlank": false,
