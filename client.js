@@ -412,7 +412,7 @@ ban_trigger.OnEnter.Add(function (p, a) {
 		plr.Spawns.Despawn();
 		plr.Properties.Get("banned").Value;
 		BLACKLIST.Value += plr.Id;
-		banned_team.Add(p)
+		banned_team.Add(plr)
 	}
 });
 
