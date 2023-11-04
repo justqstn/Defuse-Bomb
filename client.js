@@ -93,6 +93,12 @@ try {
 		if (ADMIN.search(p.Id) != -1) {
 			p.Properties.Get("admin").Value = true;
 		}
+		else {
+			AreaViewService.GetContext(p).Get("ban").Enable = false;
+			AreaViewService.GetContext(p).Get("next").Enable = false;
+			AreaViewService.GetContext(p).Get("prev").Enable = false;
+			AreaViewService.GetContext(p).Get("refresh").Enable = false;
+		}
 		last_rid = p.IdInRoom;
 		if (state.Value == "round" || state.Value == "end_round") {
 			p.Spawns.Spawn();
@@ -123,12 +129,6 @@ try {
 			p.Spawns.Spawn();
 			p.Spawns.Despawn();
 			p.Properties.Get("banned").Value = true;
-		}
-		else {
-			AreaViewService.GetContext(p).Get("ban").Enable = false
-			AreaViewService.GetContext(p).Get("next").Enable = false
-			AreaViewService.GetContext(p).Get("prev").Enable = false
-			AreaViewService.GetContext(p).Get("refresh").Enable = false
 		}
 	});
 
