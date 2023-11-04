@@ -118,7 +118,7 @@ Teams.OnPlayerChangeTeam.Add(function (p) {
 		p.Spawns.Despawn();
 		p.Ui.Hint.Value = "Игра уже началась. Ждите конца игры";
 		p.Timers.Get("clear").Restart(10);
-	} else p.Spawns.Spawn();
+	} else if (p.Team != banned_team) p.Spawns.Spawn();
 });
 
 Damage.OnDeath.Add(function (p) {
