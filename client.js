@@ -12,11 +12,11 @@
 
 
 // Константы
-const ADMIN = "9DE9DFD7D1F5C16A8299BE4D086C6372AAA9FBB8CCA3CD902F1955AAE64508B9ACDC54C07D66B94A", ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
+const ADMIN = "9DE9DFD7D1F5C16A8299BE4D086C6372AAA9FBB8CCA3CD902F1955AAE64508B9", ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30, LOADING_TIME = 10, WARMUP_TIME = GameMode.Parameters.GetBool("TestMode") ? 5 : 90, PRE_ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 10 : 30, ROUND_TIME = GameMode.Parameters.GetBool("TestMode") ? 30 : 150, AFTER_ROUND_TIME = 10, END_TIME = 15, BEFORE_PLANTING_TIME = GameMode.Parameters.GetBool("TestMode") ? 4 : 60, BOMB_PLANTING_TIME = 3, BOMB_DEFUSE_TIME = 7, BOMB_DEFUSEKIT_TIME = 3, HELMET_HP = 130, VEST_HP = 160,
 	SECONDARY_COST = 650, MAIN_COST = 2850, EXPLOSIVE_COST = 300, DEFUSEKIT_COST = 350, HELMET_COST = 650, VEST_COST = 1200, DEFAULT_MONEY = 1000, MAX_MONEY = 6000, BOUNTY_WIN = 1500, BOUNTY_LOSE = 800, BOUNTY_LOSE_BONUS = 500, BOUNTY_KILL = 250, BOUNTY_PLANT = 300, BOUNTY_DEFUSE = 500, MAX_LOSS_BONUS = 5;
 
 // Переменные
-let cnt = 0, last_rid = 0, BLACKLIST = Properties.GetContext().Get("banned"); state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
+let last_rid = 0, BLACKLIST = Properties.GetContext().Get("banned"); state = Properties.GetContext().Get("state"), is_planted = Properties.GetContext().Get("is_planted"), main_timer = Timers.GetContext().Get("main"), round = Properties.GetContext().Get("round"), bomb = Properties.GetContext().Get("bomb");
 main_wp_trigger = AreaPlayerTriggerService.Get("main"), secondary_wp_trigger = AreaPlayerTriggerService.Get("secondary"), explosive_wp_trigger = AreaPlayerTriggerService.Get("explosive"), bomb_trigger = AreaPlayerTriggerService.Get("bomb"), defkit_trigger = AreaPlayerTriggerService.Get("defkit"),
 	defuse_trigger = AreaPlayerTriggerService.Get("defuse"), plant_trigger = AreaPlayerTriggerService.Get("plant"), helmet_trigger = AreaPlayerTriggerService.Get("helmet"), vest_trigger = AreaPlayerTriggerService.Get("armour"), next_trigger = AreaPlayerTriggerService.Get("next"), prev_trigger = AreaPlayerTriggerService.Get("prev"), ban_trigger = AreaPlayerTriggerService.Get("ban"), refresh_trigger = AreaPlayerTriggerService.Get("refresh");
 
@@ -367,10 +367,8 @@ let players = [];
 function refresh() {
 	let e = Players.GetEnumerator();
 	players = [];
-	cnt = 0;
 	while (e.moveNext()) {
 		players.push(e.Current.IdInRoom)
-		cnt += e.Current.IdInRoom;
 	}
 }
 
@@ -388,9 +386,9 @@ next_trigger.OnEnter.Add(function (p, a) {
 
 prev_trigger.OnEnter.Add(function (p, a) {
 	if (p.Properties.Get("admin").Value) {
-		if (Players.Count != players.length) refresh();
+		if (players.length == 0) refresh();
 		let indx = p.Properties.Get("index");
-		if (indx.Value == 0) indx.Value--;
+		if (indx.Value > 0) indx.Value--;
 		else indx.Value = Players.Count - 1;
 		let plr = Players.GetByRoomId(players[indx.Value])
 		p.Ui.Hint.Value = (indx.Value + 1) + ". " + plr.NickName + "\nid: " + plr.Id + "\nbanned: " + plr.Properties.Get("banned").Value;
@@ -454,7 +452,8 @@ main_timer.OnTimer.Add(function () {
 			StartWarmup();
 			break;
 		case "warmup":
-			WaitingRound();
+			BLACKLIST.Value = null;
+			Game.RestartGame();
 			break;
 		case "waiting":
 			StartRound();
@@ -473,6 +472,7 @@ main_timer.OnTimer.Add(function () {
 			WaitingRound();
 			break
 		case "end_game":
+			BLACKLIST.Value = null;
 			Game.RestartGame();
 			break;
 	}
