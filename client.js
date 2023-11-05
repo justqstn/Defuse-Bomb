@@ -475,7 +475,6 @@ Timers.OnPlayerTimer.Add(function (timer) {
 main_timer.OnTimer.Add(function () {
 	switch (state.Value) {
 		case "loading":
-			try { for (let e = Players.GetEnumerator(); e.MoveNext();) for (let p = e.Current.Properties.GetProperties().GetEnumerator(); p.MoveNext();) p.Current.Value = null; } catch(e) { msg.Show(e.name + " " + e.message); }
 			StartWarmup();
 			break;
 		case "warmup":
@@ -499,6 +498,7 @@ main_timer.OnTimer.Add(function () {
 			break
 		case "end_game":
 			state.Value = "clearing";
+			for (let e = Players.GetEnumerator(); e.MoveNext();) for (let p = e.Current.Properties.GetProperties().GetEnumerator(); p.MoveNext();) p.Current.Value = null;
 			main_timer.Restart(10);
 			break;
 		case "clearing":
