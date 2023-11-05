@@ -449,11 +449,11 @@ Timers.OnPlayerTimer.Add(function (timer) {
 main_timer.OnTimer.Add(function () {
 	switch (state.Value) {
 		case "loading":
-			StartWarmup();
-			break;
-		case "warmup":
 			BLACKLIST.Value = null;
 			Game.RestartGame();
+			break;
+		case "warmup":
+			WaitingRound();
 			break;
 		case "waiting":
 			StartRound();
