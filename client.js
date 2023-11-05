@@ -498,6 +498,10 @@ main_timer.OnTimer.Add(function () {
 			break
 		case "end_game":
 			for (let e = Players.GetEnumerator(); e.MoveNext();) for (let p = e.Current.Properties.GetProperties().GetEnumerator(); p.MoveNext();) p.Current.Value = null;
+			state.Value = "clearing";
+			main_timer.Restart(10);
+			break;
+		case "clearing":
 			Game.RestartGame();
 			break;
 	}
