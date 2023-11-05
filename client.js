@@ -159,7 +159,6 @@ Damage.OnDeath.Add(function (p) {
 		p.Properties.Get("defkit").Value = false;
 		if (p.Properties.Get("bomb").Value) bomb.Value = true;
 		p.Properties.Get("bomb").Value = false;
-		p.Properties.Get("alive").Value = false;
 		p.Inventory.Main.Value = false;
 		p.Inventory.Secondary.Value = false;
 		p.Inventory.Explosive.Value = false;
@@ -498,7 +497,7 @@ main_timer.OnTimer.Add(function () {
 			WaitingRound();
 			break
 		case "end_game":
-			BLACKLIST.Value = null;
+			for (let e = Players.GetEnumerator(); e.MoveNext();) for (let p = e.Current.Properties.GetProperties().GetEnumerator(); p.MoveNext();) p.Current.Value = null;
 			Game.RestartGame();
 			break;
 	}
