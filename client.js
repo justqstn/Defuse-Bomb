@@ -376,7 +376,7 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 	});
 
 	let plant = AddArea({
-		name: "plant", tags: ["plant"], color: rgb(0, 255, 0), enter: function (p, a) {
+		name: "plant", tags: ["_plant"], color: rgb(0, 255, 0), enter: function (p, a) {
 			if (!is_planted.Value && p.Team == t_team) {
 				if (state.Value != "round") return p.Ui.Hint.Value = "Место закладки бомбы";
 				if (!p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "У вас нет бомбы.";
@@ -557,7 +557,6 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 		AreaViewService.GetContext().Get("secondary").Enable = v;
 		AreaViewService.GetContext().Get("explosive").Enable = v;
 		AreaViewService.GetContext().Get("defkit").Enable = v;
-		AreaViewService.GetContext().Get("spawn").Enable = v;
 		AreaViewService.GetContext().Get("armour").Enable = v;
 		AreaViewService.GetContext().Get("helmet").Enable = v;
 	}
