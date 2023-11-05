@@ -1,4 +1,4 @@
-try {
+\try {
 	/* 
 Закладка бомбы от just_qstn  
 Bomb Planting by just_qstn
@@ -223,19 +223,6 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 	});
 
 	// Зоны
-	AddArea(["main"], "main", rgb(255, 32, 0));
-	AddArea(["secondary"], "secondary",);
-	AddArea(["explosive"], "explosive", rgb(0, 255, 179));
-	AddArea(["bomb"], "bomb", rgb(255, 0, 255));
-	AddArea(["defkit"], "defkit", rgb(255, 0, 255));
-	AddArea(["armour"], "armour", rgb(128, 96, 255));
-	AddArea(["_plant"], "plant", rgb(0, 255, 0));
-	AddArea(["defuse"], "defuse", rgb(255, 0, 0));
-	AddArea(["helmet"], "helmet", rgb(0, 255, 0));
-	AddArea(["ban"], "ban", rgb(255, 255, 0));
-	AddArea(["next"], "next", rgb(0, 255, 0));
-	AddArea(["prev"], "prev", rgb(255, 0, 0));
-	AddArea(["refresh"], "refresh", rgb(0, 0, 255));
 	function t_hint_reset(p, a) {
 		p.Ui.Hint.Reset();
 	}
