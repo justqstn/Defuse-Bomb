@@ -3,7 +3,7 @@
 Bomb Planting by just_qstn
 Gamemode for Pixel Combats 2
 
-VERSION = 2
+VERSION = 1.06
 
 MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discord: дурак и психопат!#5687)
  
