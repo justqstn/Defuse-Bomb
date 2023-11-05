@@ -1,4 +1,4 @@
-\try {
+try {
 	/* 
 Закладка бомбы от just_qstn  
 Bomb Planting by just_qstn
@@ -223,232 +223,7 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 	});
 
 	// Зоны
-	function t_hint_reset(p, a) {
-		p.Ui.Hint.Reset();
-	}
-
-	AddArea({
-		name: "main", tags: ["main"], color: rgb(255, 32, 0), enter: function (p, a) {
-			if (state.Value != "waiting") return;
-			let prop = p.Properties.Get(a.Name + "_accept");
-			if (p.Inventory.Main.Value) return p.Ui.Hint.Value = "Основное оружие уже куплено";
-			if (prop.Value) {
-				if (p.Properties.Scores.Value >= MAIN_COST) {
-					p.Properties.Scores.Value -= MAIN_COST;
-					p.Ui.Hint.Value = "Вы купили основное оружие";
-					p.Inventory.Main.Value = true;
-				} else {
-					p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (MAIN_COST - p.Properties.Scores.Value);
-				}
-				return prop.Value = false;
-			} else {
-				p.Ui.Hint.Value = "Вы хотите купить основное оружие за " + MAIN_COST + ".\nВойдите в зону второй раз чтобы купить";
-				return prop.Value = true;
-			}
-		}, exit: t_hint_reset
-	});
-
-	AddArea({
-		name: "secondary", tags: ["secondary"], color: rgb(255, 255, 0), enter: function (p, a) {
-			if (state.Value != "waiting") return;
-			let prop = p.Properties.Get(a.Name + "_accept");
-			if (p.Inventory.Secondary.Value) return p.Ui.Hint.Value = "Вторичное оружие уже куплено";
-			if (prop.Value) {
-				if (p.Properties.Scores.Value >= SECONDARY_COST) {
-					p.Properties.Scores.Value -= SECONDARY_COST;
-					p.Ui.Hint.Value = "Вы купили вторичное оружие";
-					p.Inventory.Secondary.Value = true;
-				} else {
-					p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (SECONDARY_COST - p.Properties.Scores.Value);
-				}
-				return prop.Value = false;
-			} else {
-				p.Ui.Hint.Value = "Вы хотите купить вторичное оружие за " + SECONDARY_COST + ".\nВойдите в зону второй раз чтобы купить";
-				return prop.Value = true;
-			}
-		}, exit: t_hint_reset
-	});
-
-	AddArea({
-		name: "explosive", tags: ["explosive"], color: rgb(0, 255, 179), enter: function (p, a) {
-			if (state.Value != "waiting") return;
-			let prop = p.Properties.Get(a.Name + "_accept");
-			if (p.Inventory.Explosive.Value) return p.Ui.Hint.Value = "Взрывчатка уже куплена";
-			if (prop.Value) {
-				if (p.Properties.Scores.Value >= EXPLOSIVE_COST) {
-					p.Properties.Scores.Value -= EXPLOSIVE_COST;
-					p.Ui.Hint.Value = "Вы купили взрывчатку";
-					p.Inventory.Explosive.Value = true;
-				} else {
-					p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (EXPLOSIVE_COST - p.Properties.Scores.Value);
-				}
-				return prop.Value = false;
-			} else {
-				p.Ui.Hint.Value = "Вы хотите купить взрывчатку за " + EXPLOSIVE_COST + ".\nВойдите в зону второй раз чтобы купить";
-				return prop.Value = true;
-			}
-		}, exit: t_hint_reset
-	});
-
-	AddArea({
-		name: "defkit", tags: ["defkit"], color: rgb(255, 0, 255), enter: function (p, a) {
-			if (state.Value != "waiting") return;
-			let prop = p.Properties.Get(a.Name + "_accept");
-			if (p.Properties.Get("defkit").Value) return p.Ui.Hint.Value = "Набор сапера уже куплен";
-			if (prop.Value) {
-				if (p.Properties.Scores.Value >= DEFUSEKIT_COST) {
-					p.Properties.Scores.Value -= DEFUSEKIT_COST;
-					p.Ui.Hint.Value = "Вы купили набор сапера";
-					p.Properties.Get("defkit").Value = true;
-				} else {
-					p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (DEFUSEKIT_COST - p.Properties.Scores.Value);
-				}
-				return prop.Value = false;
-			} else {
-				p.Ui.Hint.Value = "Вы хотите купить набор сапера за " + DEFUSEKIT_COST + ".\nВойдите в зону второй раз чтобы купить";
-				return prop.Value = true;
-			}
-		}, exit: t_hint_reset
-	});
-
-	AddArea({
-		name: "helmet", tags: ["helmet"], color: rgb(0, 255, 0), enter: function (p, a) {
-			if (state.Value != "waiting") return;
-			let prop = p.Properties.Get(a.Name + "_accept");
-			if (p.contextedProperties.MaxHp.Value >= HELMET_HP) return p.Ui.Hint.Value = "Шлем уже куплен";
-			if (prop.Value) {
-				if (p.Properties.Scores.Value >= HELMET_COST) {
-					p.Properties.Scores.Value -= HELMET_COST;
-					p.Ui.Hint.Value = "Вы купили шлем";
-					p.contextedProperties.MaxHp.Value = HELMET_HP;
-					p.Spawns.Spawn();
-				} else {
-					p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (HELMET_COST - p.Properties.Scores.Value);
-				}
-				return prop.Value = false;
-			} else {
-				p.Ui.Hint.Value = "Вы хотите купить шлем (+" + HELMET_HP + ") за " + HELMET_COST + ".\nВойдите в зону второй раз чтобы купить";
-				return prop.Value = true;
-			}
-		}, exit: t_hint_reset
-	});
-
-	AddArea({
-		name: "armour", tags: ["armour"], color: rgb(128, 96, 255), enter: function (p, a) {
-			if (state.Value != "waiting") return;
-			let prop = p.Properties.Get(a.Name + "_accept");
-			if (p.contextedProperties.MaxHp.Value >= VEST_HP) return p.Ui.Hint.Value = "Бронежилет и шлем уже куплены";
-			if (prop.Value) {
-				if (p.Properties.Scores.Value >= VEST_COST) {
-					p.Properties.Scores.Value -= VEST_COST;
-					p.Ui.Hint.Value = "Вы купили бронежилет и шлем";
-					p.contextedProperties.MaxHp.Value = VEST_HP;
-					p.Spawns.Spawn();
-				} else {
-					p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (VEST_COST - p.Properties.Scores.Value);
-				}
-				return prop.Value = false;
-			} else {
-				p.Ui.Hint.Value = "Вы хотите купить бронежилет и шлем (+" + VEST_HP + ") за " + VEST_COST + ".\nВойдите в зону второй раз чтобы купить";
-				return prop.Value = true;
-			}
-		}, exit: t_hint_reset
-	});
-
-	AddArea({
-		name: "bomb", tags: ["bomb"], color: rgb(255, 0, 255), enter: function (p, a) {
-			if (p.Team == ct_team) return;
-			if (bomb.Value) {
-				if (p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "Бомба уже положена"
-				p.Properties.Get("bomb").Value = true;
-				bomb.Value = false;
-				p.Ui.Hint.Value = "Вы взяли бомбу";
-			}
-			else {
-				if (p.Properties.Get("bomb").Value) {
-					p.Properties.Get("bomb").Value = false;
-					bomb.Value = true;
-					p.Ui.Hint.Value = "Вы положили бомбу";
-				}
-				p.Ui.Hint.Value = "Бомбы нету!";
-			}
-		}, exit: t_hint_reset
-	});
-
-	let plant = AddArea({
-		name: "plant", tags: ["plant"], color: rgb(0, 255, 0), enter: function (p, a) {
-			if (!is_planted.Value && p.Team == t_team) {
-				if (state.Value != "round") return p.Ui.Hint.Value = "Место закладки бомбы";
-				if (!p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "У вас нет бомбы.";
-				p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "сек. в зоне чтобы заложить бомбу";
-				return p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
-			}
-			if (is_planted.Value && p.Team == ct_team && AreaViewService.GetContext().Get(a.Name).Color.r > 0) {
-				if (state.Value != "round") return p.Ui.Hint.Value = "Место разминирования бомбы";
-				let def_time = p.Properties.Get("defkit").Value ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
-				p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
-				p.Timers.Get("defuse" + a.Name).Restart(def_time);
-			}
-		}, exit: t_hint_reset
-	});
-
-	let a_next = AddArea({
-		name: "next", tags: ["next"], color: rgb(0, 255, 0), enter: function (p, a) {
-			if (p.Properties.Get("admin").Value) {
-				if (players.length == 0) refresh();
-				let indx = p.Properties.Get("index");
-				if (indx.Value < Players.Count - 1) indx.Value++;
-				else indx.Value = 0;
-				let plr = Players.GetByRoomId(players[indx.Value])
-				p.Ui.Hint.Value = (indx.Value + 1) + ". " + plr.NickName + "\nid: " + plr.Id + "\nbanned: " + plr.Properties.Get("banned").Value;
-				p.Timers.Get("clear").Restart(5);
-			}
-		}
-	});
-
-	let a_prev = AddArea({
-		name: "prev", tags: ["prev"], color: rgb(255, 0, 0), enter: function (p, a) {
-			if (p.Properties.Get("admin").Value) {
-				if (players.length == 0) refresh();
-				let indx = p.Properties.Get("index");
-				if (indx.Value > 0) indx.Value--;
-				else indx.Value = Players.Count - 1;
-				let plr = Players.GetByRoomId(players[indx.Value])
-				p.Ui.Hint.Value = (indx.Value + 1) + ". " + plr.NickName + "\nid: " + plr.Id + "\nbanned: " + plr.Properties.Get("banned").Value;
-				p.Timers.Get("clear").Restart(5);
-			}
-		}
-	});
-
-	let a_ban = AddArea({
-		name: "ban", tags: ["ban"], color: rgb(255, 255, 0), enter: function (p, a) {
-			if (p.Properties.Get("admin").Value) {
-				p.Timers.Get("clear").Restart(5);
-				if (players.length == 0) {
-					refresh();
-					return p.Ui.Hint.Value = "Перезагружен массив игроков, выберите игрока еще раз.";
-				}
-				let indx = p.Properties.Get("index");
-				let plr = Players.GetByRoomId(players[indx.Value])
-				p.Ui.Hint.Value = "забанен " + plr.NickName + "\nid: " + plr.Id;
-				plr.Spawns.Spawn();
-				plr.Spawns.Despawn();
-				plr.Properties.Get("banned").Value;
-				BLACKLIST.Value += plr.Id;
-				banned_team.Add(plr)
-			}
-		}
-	});
-
-	let a_refresh = AddArea({
-		name: "refresh", tags: ["refresh"], color: rgb(0, 0, 255), enter: function (p, a) {
-			if (p.Properties.Get("admin").Value) {
-				refresh();
-				p.Ui.Hint.Value = "Массив игроков перезагружен";
-				p.Timers.Get("clear").Restart(5);
-			}
-		}
-	});
+	
 
 	// Таймеры
 	Timers.OnPlayerTimer.Add(function (timer) {
@@ -667,7 +442,7 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 		t.Properties.Get("wins").Value++;
 		t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
 		if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
-		aTeam.Properties.Get("loses").Value++;
+		if (aTeam.Properties.Get("loses").Value < MAX_LOSS_BONUS) aTeam.Properties.Get("loses").Value++;
 
 		if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
 		if (round.Value >= ROUNDS && ct_team.Properties.Get("wins").Value != t_team.Properties.Get("wins").Value) EndGame();
@@ -716,4 +491,4 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 		state.Value = "end_game";
 		main_timer.Restart(END_TIME);
 	}
-} catch (e) { Validate.ReportInvalid(e.name + " " + e.message) }
+} catch (e) { Validate.ReportInvalid(e.name + " " + e.message); }
