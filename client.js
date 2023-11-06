@@ -390,7 +390,11 @@ name: "plant", tags: ["_plant"], color: rgb(0, 255, 0), view: false, enter: func
 		p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
 		p.Timers.Get("defuse" + a.Name).Restart(def_time);
 	}
-}, exit: t_hint_reset
+}, exit: function(p, a) {
+		p.Timers.Get("defuse" + a.Name).Stop();
+		p.Timers.Get("plant" + a.Name).Stop();
+		t_hint_reset(p, a);
+	}
 });
 
 let a_next = AddArea({
