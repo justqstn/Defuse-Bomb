@@ -185,15 +185,17 @@ Players.OnPlayerDisconnected.Add(function (p) {
 });
 
 Properties.OnPlayerProperty.Add(function (c, v) {
-	switch (v.Name) {
-		case "Scores":
-			if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
-			break;
-		case "Deaths":
-			c.Player.Team.Properties.Get("hint").Value = "< Победы: " + c.Player.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(c.Player.Team) || "-") + " >";
-			if (!is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(AnotherTeam(c.Player.Team));
-			if (c.Player.Team == ct_team && is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(t_team);
-			break;
+	if (state.Value != "clearing") {
+		switch (v.Name) {
+			case "Scores":
+				if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
+				break;
+			case "Deaths":
+				c.Player.Team.Properties.Get("hint").Value = "< Победы: " + c.Player.Team.Properties.Get("wins").Value + " >\n\n< Живых: " + (c_GetAlivePlayersCount(c.Player.Team) || "-") + " >";
+				if (!is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(AnotherTeam(c.Player.Team));
+				if (c.Player.Team == ct_team && is_planted.Value && c_GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(t_team);
+				break;
+		}
 	}
 });
 
