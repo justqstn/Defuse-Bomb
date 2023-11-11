@@ -15,7 +15,7 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 */
 
 // Константы. Если есть вопросы по поводу баланса - идите сюда
-const ADMIN = "9DE9DFD7D1F5C16AEC76560AA6B5750BAAA9FBB8CCA3CD90ACDC54C07D66B94A",
+const ADMIN = "9DE9DFD7D1F5C16AEC76560AA6B5750BAAA9FBB8CCA3CD90ACDC54C07D66B94A2F1955AAE64508B9",
 ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30,
 LOADING_TIME = 10, 					// время загрузки
 WARMUP_TIME = 90, 					// время разминки
