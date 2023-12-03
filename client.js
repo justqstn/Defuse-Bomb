@@ -15,7 +15,7 @@ MIT License Copyright (c) 2023 just_qstn (vk, tg, discord: just_qstn. old discor
 */
 
 // Константы. Если есть вопросы по поводу баланса - идите сюда
-const ADMIN = "9DE9DFD7D1F5C16AEC76560AA6B5750BAAA9FBB8CCA3CD90ACDC54C07D66B94A2F1955AAE64508B9",
+const ADMIN = "9DE9DFD7D1F5C16AEC76560AA6B5750BACDC54C07D66B94A2F1955AAE64508B9",
 ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30,
 LOADING_TIME = 10, 					// время загрузки
 WARMUP_TIME = 90, 					// время разминки
@@ -62,7 +62,7 @@ round.Value = 0;
 Inventory.GetContext().Build.Value = false;
 TeamsBalancer.IsAutoBalance = false;
 BreackGraph.Damage = false;
-BLACKLIST.Value = "C3EB1387A99FC76ED";
+BLACKLIST.Value = "C3EB1387A99FC76EDAAA9FBB8CCA3CD90";
 Map.Rotation = GameMode.Parameters.GetBool("MapRotation")
 Damage.GetContext().GranadeTouchExplosion.Value = false;
 
