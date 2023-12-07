@@ -1,7 +1,7 @@
 {
   "Name": "<B><color=#FFE4B5>Закладка</color> <color=#B0E0E6>бомбы</color></B>",
   "Description": "<B>v1.06. <color=red>ОБЯЗАТЕЛЬНО ЧИТАТЬ ПРАВИЛА НА ГИТХАБЕ!</color> Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
-  "StartClientVersion": 334,
+  "StartClientVersion": 512,
   "MapFilter": {
     "IsBlank": false,
     "HasParcourEnd": false
