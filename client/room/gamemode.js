@@ -67,7 +67,7 @@ let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist =
 // Настройки
 API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
 State.Value = STATES.Waiting;
-Blacklist.Value = banned;
+Blacklist.Value = BANNED;
 
 // Создание команд
 let CounterTerrosists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
