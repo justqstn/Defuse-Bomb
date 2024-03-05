@@ -95,15 +95,7 @@ export function SetTimeout(callback, s)
 
     function _timer()
     {
-        switch(arguments.length)
-        {
-            case 2:
-                callback();
-                break;
-            case 3:
-                callback(arguments[2]);
-                break;
-        }
+        callback();
         
         timer.Remove(_timer);
     }
