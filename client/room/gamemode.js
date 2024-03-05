@@ -540,7 +540,7 @@ function StartWarmup() {
                 API.AreaViewService.GetContext().Get(rnd_name).Color = ColorsLib.Colors.Green;
                 API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
                 API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
-                API.rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
+                rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
             })
             a.Tags.Clear();
             a.Ranges.Clear();
