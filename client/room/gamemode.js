@@ -232,6 +232,6 @@ function BanPlayer(p) {
 
 function GetAlivePlayersCount(t) {
     let count = 0;
-    
+    API.Players.All.forEach((p) => { if (p.Team == t && p.Spawns.IsSpawned && p.IsAlive) count++; });
     return count;
 }
