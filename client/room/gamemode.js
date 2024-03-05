@@ -74,7 +74,7 @@ Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
 Round.Value = 0;
-I.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
 
 // Создание команд
 API.Teams.OnAddTeam.Add(function (t) {
