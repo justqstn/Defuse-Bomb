@@ -145,17 +145,6 @@ API.Teams.OnPlayerChangeTeam.Add(function (p) {
     }
 });
 
-API.Players.OnPlayerConnected.Add(function (p) {
-    if (Blacklist.Value.search(p.Id) != -1) {
-        p.Spawns.Spawn();
-        p.Spawns.Despawn();
-        p.Properties.Get("banned").Value = true;
-    }
-    else {
-        p.Properties.Get("banned").Value = false;
-    }
-    JQUtils.SetTimeout(JoinToTeam, 5, p);
-});
 
 
 
