@@ -125,7 +125,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
         }
     }
     JoinToTeam(p, t);
-    if (p.Team == null && (State.Value == STATES.Round || State.Value == STATES.Endround)) {
+    if (!p.Spawns.IsSpawned && (State.Value == STATES.Round || State.Value == STATES.Endround)) {
         p.Spawns.Spawn();
         p.Spawns.Despawn();
         p.PopUp("Игра уже началась. Ждите конца игры");
@@ -134,13 +134,12 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
 
 API.Players.OnPlayerConnected.Add(function (p) {
     JQUtils.pcall(() => {
-        Ui.Hint.Value = "мне похуй";
+        JoinToTeam(p);
         if (Blacklist.Value.search(p.Id) != -1) {
             BanPlayer(p);
         }
         else {
             p.Properties.Get("banned").Value = false;
-            JoinToTeam(p);
         }
     }, true);
 });
