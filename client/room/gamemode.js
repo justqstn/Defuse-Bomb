@@ -588,8 +588,8 @@ function WaitingRound() {
     JQUtils.pcall(() => {
         State.Value = STATES.Preround;
 
-        API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
-        API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
+        API.MapEditor.SetBlock(API.AreaService.Get("bd"), 93);
+        API.MapEditor.SetBlock(API.AreaService.Get("bd"), 93);
 
         BalanceTeams();
 
@@ -631,8 +631,8 @@ function StartRound() {
     Ui.Hint.Value = `Закладка бомбы.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
     MainTimer.Restart(ROUND_TIME);
 
-    API.MapEditor.SetBlock(AreaService.Get("bd"), 0);
-    API.MapEditor.SetBlock(AreaService.Get("bd"), 0);
+    API.MapEditor.SetBlock(API.AreaService.Get("bd"), 0);
+    API.MapEditor.SetBlock(API.AreaService.Get("bd"), 0);
 }
 
 function EndRound(t) {
