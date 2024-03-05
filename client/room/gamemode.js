@@ -25,7 +25,7 @@ const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955A
 
 // Конфигурация
 const
-    ROUNDS = GameMode.Parameters.GetBool("short_game") ? 16 : 30,
+    ROUNDS = API.GameMode.Parameters.GetBool("short_game") ? 16 : 30,
     LOADING_TIME = 10, 					// время загрузки
     WARMUP_TIME = 90, 					// время разминки
     PRE_ROUND_TIME = 30, 				// время покупки снаряжения
@@ -65,7 +65,7 @@ let Properties = API.Properties.GetContext(), Timers = API.Timers.GetContext();
 let MainTimer = Timers.Get("main"), State = Properties.Get("state");
 
 // Настройки
-API.Map.Rotation = GameMode.Parameters.GetBool("MapRotation");
+API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
 State.Value = STATES.Waiting;
 
 // Создание команд
