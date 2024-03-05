@@ -126,7 +126,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
         }
     }
     
-    JoinToTeam(p);
+    JoinToTeam(p, t);
 });
 
 API.Teams.OnPlayerChangeTeam.Add(function (p) {
@@ -149,7 +149,7 @@ API.Teams.OnPlayerChangeTeam.Add(function (p) {
 
 
 // Функции
-function JoinToTeam(p)
+function JoinToTeam(p, t = Terrorists)
 {
     let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
         T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
