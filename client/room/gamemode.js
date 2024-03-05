@@ -27,6 +27,35 @@ const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955A
 
 // Конфигурация
 const
+    ROUNDS = API.GameMode.Parameters.GetBool("short_game") ? 2 : 30,
+    LOADING_TIME = 10, 					// время загрузки
+    WARMUP_TIME = 10, 					// время разминки
+    PRE_ROUND_TIME = 10, 				// время покупки снаряжения
+    ROUND_TIME = 30, 					// время раунда
+    AFTER_ROUND_TIME = 10, 				// время после раунда
+    END_TIME = 15, 						// время после игры
+    BEFORE_PLANTING_TIME = 5, 			// время после закладки бомбы
+    BOMB_PLANTING_TIME = 3, 			// время закладки бомбы
+    BOMB_DEFUSE_TIME = 7, 				// время разминирования бомбы без набора сапера
+    BOMB_DEFUSEKIT_TIME = 3, 			// время разминирования бомб с набором сапера
+    HELMET_HP = 130, 					// хп с шлемом
+    VEST_HP = 160,						// хп с бронежилетом и шлемом
+    SECONDARY_COST = 650, 				// стоимость вторичного оружия
+    MAIN_COST = 2850, 					// стоимость основного оружия
+    EXPLOSIVE_COST = 300, 				// стоимость взрывчатки
+    DEFUSEKIT_COST = 350, 				// стоимость набора сапера
+    HELMET_COST = 650, 					// стоимость шлема
+    VEST_COST = 1200, 					// стоимость бронежилета с шлемом
+    DEFAULT_MONEY = 1000, 				// сколько денег давать на спавне
+    MAX_MONEY = 6000, 					// максимальное количество денег
+    BOUNTY_WIN = 1500, 					// награда за победу
+    BOUNTY_LOSE = 800, 					// награда за поражение * лусбонус
+    BOUNTY_LOSE_BONUS = 500, 			// лусбонус (за каждое поражение он увеличивается на кол-во поражений)
+    BOUNTY_KILL = 250, 					// награда за убийство
+    BOUNTY_PLANT = 300, 				// награда за закладку бомбы
+    BOUNTY_DEFUSE = 500, 				// награда за разминирование
+    MAX_LOSS_BONUS = 5;					// максимальный лусбонус
+/*const
     ROUNDS = API.GameMode.Parameters.GetBool("short_game") ? 16 : 30,
     LOADING_TIME = 10, 					// время загрузки
     WARMUP_TIME = 90, 					// время разминки
@@ -54,7 +83,7 @@ const
     BOUNTY_KILL = 250, 					// награда за убийство
     BOUNTY_PLANT = 300, 				// награда за закладку бомбы
     BOUNTY_DEFUSE = 500, 				// награда за разминирование
-    MAX_LOSS_BONUS = 5;					// максимальный лусбонус
+    MAX_LOSS_BONUS = 5;					// максимальный лусбонус*/
 
 // Доступ к функциям и модулям из "терминала"
 globalThis.API = API;
@@ -74,7 +103,7 @@ Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
 Round.Value = 0;
-API.Spawns.GetContext().RespawnEnable = false;
+API.Spawns.GetContext().Enable = false;
 //API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
 
 // Создание команд
@@ -485,6 +514,7 @@ function GetAlivePlayersCount(t) {
 }
 
 function SpawnPlayers(clear) {
+    API.Spawns.GetContext().Enable = true;
     API.Spawns.GetContext().RespawnEnable = true;
     API.Players.All.forEach((p) => {
         if (p.Team != null && !p.Properties.Get("banned").Value) {
