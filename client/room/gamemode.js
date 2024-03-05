@@ -111,7 +111,7 @@ Ui.TeamProp2.Value = { Team: "ct", Prop: "hint" };
 Ui.MainTimerId.Value = MainTimer.Id;
 
 // События
-Teams.OnRequestJoinTeam.Add(function (p, t) {
+API.Teams.OnRequestJoinTeam.Add(function (p, t) {
     if (t == null)
     {
         if (Blacklist.Value.search(p.Id) != -1) {
