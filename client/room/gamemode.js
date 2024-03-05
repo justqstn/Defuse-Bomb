@@ -125,13 +125,11 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
             p.Properties.Get("defkit").Value = false;
         }
     }
-    else {
-        let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
-            T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
-        if (CT_Count != T_Count) {
-            if (CT_Count < T_Count) CounterTerrorists.Add(p);
-            else if (CT_Count > T_Count) Terrorists.Add(p);
-        }
-        else t.Add(p);
+    let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
+        T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
+    if (CT_Count != T_Count) {
+        if (CT_Count < T_Count) CounterTerrorists.Add(p);
+        else if (CT_Count > T_Count) Terrorists.Add(p);
     }
+    else t.Add(p);
 });
