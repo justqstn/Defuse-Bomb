@@ -21,7 +21,8 @@ const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955A
         "ChangeTeams": 5,
         "Endgame": 6,
         "Clearing": 7
-    };
+    },
+    ENABLED = "✓";
 
 // Конфигурация
 const
@@ -62,16 +63,26 @@ globalThis.Basic = Basic;
 
 // Переменные
 let Properties = API.Properties.GetContext(), Timers = API.Timers.GetContext(), Ui = API.Ui.GetContext();
-let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist = Properties.Get("banned");
+let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist = Properties.Get("banned"), Bomb = Properties.Get("bomb"),
+    IsPlanted = Properties.Get("is_planted");
 
 // Настройки
 API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
 State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
+Bomb.Value = false;
+IsPlanted.Value = false;
 
 // Создание команд
-let CounterTerrorists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
-let Terrorists = JQUtils.CreateTeam("t", {name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.BurlyWood)
+API.Teams.OnAddTeam.Add(function (t) {
+    t.Properties.Get("loses").Value = 0;
+    t.Properties.Get("wins").Value = 0;
+});
+
+let CounterTerrorists = JQUtils.CreateTeam("ct", { name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.SteelBlue);
+let Terrorists = JQUtils.CreateTeam("t", { name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.BurlyWood)
+
+
 
 // Интерфейс
 API.LeaderBoard.PlayerLeaderBoardValues = [
@@ -112,16 +123,16 @@ Ui.MainTimerId.Value = MainTimer.Id;
 
 // События
 API.Teams.OnRequestJoinTeam.Add(function (p, t) {
-    if (p.Team == null)
+    if (p.Properties.Get("banned").Value == null)
     {
-        if (p.Properties.Get("banned").Value == null && Blacklist.Value.search(p.Id) != -1) {
+        if (Blacklist.Value.search(p.Id) != -1) {
             BanPlayer(p);
         }
         else {
             p.Properties.Get("banned").Value = false;
             p.Properties.Scores.Value = DEFAULT_MONEY;
-            p.Properties.Get("bomb").Value = false;
-            p.Properties.Get("defkit").Value = false;
+            p.Properties.Get("bomb").Value = "x"
+            p.Properties.Get("defkit").Value = "x";
         }
     }
     JoinToTeam(p, t);
@@ -144,7 +155,63 @@ API.Players.OnPlayerConnected.Add(function (p) {
     }, true);
 });
 
+API.Players.OnPlayerDisconnected.Add(function (p) {
+    /*if (State.Value == STATES.Round) {
+        if (GetAlivePlayersCount(Terrorists) == 0 && !IsPlanted.Value) return EndRound(CounterTerrorists);
+        if (GetAlivePlayersCount(CounterTerrorists) == 0) return EndRound(Terrorists);
+    }*/
+});
+
+API.Properties.OnPlayerProperty.Add(function (c, v) {
+    if (State.Value != STATES.Clearing) {
+        switch (v.Name) {
+            case "Scores":
+                if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
+                break;
+            case "Deaths":
+                c.Player.Team.Properties.Get("hint").Value = `< Победы: ${c.Player.Team.Properties.Get("wins").Value} >\n\n< Живых: ${(GetAlivePlayersCount(c.Player.Team))} >`;
+                if (!IsPlanted.Value && GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(AnotherTeam(c.Player.Team));
+                if (c.Player.Team == CounterTerrorists && IsPlanted.Value && GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(Terrorists);
+                break;
+        }
+    }
+});
+
+API.Properties.OnTeamProperty.Add(function (c, v) {
+    if (v.Name != "hint") {
+        c.Team.Properties.Get("hint").Value =`< Победы: ${c.Team.Properties.Get("wins").Value} >\n\n< Живых: ${(GetAlivePlayersCount(c.Team))} >`;
+    }
+});
+
+Damage.OnKill.Add(function (p, k) {
+    if (State.Value == STATES.Round || State.Value == STATES.Endround) {
+        if (k.Team != null && k.Team != p.Team) {
+            p.Properties.Kills.Value++;
+            p.Properties.Scores.Value += BOUNTY_KILL;
+        }
+    }
+});
+
+API.Damage.OnDeath.Add(function (p) {
+    if (State.Value == STATES.Round || State.Value == STATES.Endround) {
+        p.Properties.Deaths.Value++;
+        p.Properties.Get("defkit").Value = "x";
+        if (p.Properties.Get("bomb").Value) Bomb.Value = true;
+        p.Properties.Get("bomb").Value = false
+        p.Inventory.Main.Value = false;
+        p.Inventory.Secondary.Value = false;
+        p.Inventory.Explosive.Value = false;
+        p.contextedProperties.MaxHp.Value = 100;
+        p.Spawns.Despawn();
+    }
+});
+
 // Функции
+function AnotherTeam(t) {
+    if (t == Terrorists) return CounterTerrorists;
+    else return Terrorists;
+}
+
 function JoinToTeam(p, t)
 {
     let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
@@ -161,4 +228,10 @@ function BanPlayer(p) {
     p.Spawns.Despawn();
     p.Properties.Get("banned").Value = true;
     p.PopUp("<size=45><B>Вы забанены!</B></size>\n<i>Считаете, что забанены не по делу? Пишите в Issue в репозитории на GitHub.</i>");
+}
+
+function GetAlivePlayersCount(t) {
+    let count = 0;
+    API.Players.All.forEach((p) => { if (p.Team == t && p.Spawns.IsSpawned && p.IsAlive) count++ });
+    return count;
 }
