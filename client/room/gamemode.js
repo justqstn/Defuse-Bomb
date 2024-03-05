@@ -28,7 +28,7 @@ const
     ROUNDS = API.GameMode.Parameters.GetBool("short_game") ? 16 : 30,
     LOADING_TIME = 10, 					// время загрузки
     WARMUP_TIME = 90, 					// время разминки
-    PRE_ROUND_TIME = 30, 				// время покупки снаряжения
+    PRE_ROUND_TIME = 45, 				// время покупки снаряжения
     ROUND_TIME = 150, 					// время раунда
     AFTER_ROUND_TIME = 10, 				// время после раунда
     END_TIME = 15, 						// время после игры
@@ -112,9 +112,9 @@ Ui.MainTimerId.Value = MainTimer.Id;
 
 // События
 API.Teams.OnRequestJoinTeam.Add(function (p, t) {
-    if (t == null)
+    if (p.Team == null)
     {
-        if (Blacklist.Value.search(p.Id) != -1) {
+        if (p.Properties.Get("banned").Value == null && Blacklist.Value.search(p.Id) != -1) {
             p.Spawns.Spawn();
             p.Spawns.Despawn();
             p.Properties.Get("banned").Value = true;
@@ -125,6 +125,43 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
             p.Properties.Get("defkit").Value = false;
         }
     }
+    
+    JoinToTeam(p);
+});
+
+API.Teams.OnPlayerChangeTeam.Add(function (p) {
+    if (!p.Properties.Get("banned").Value)
+    {
+        if (State.Value == STATES.Round || State.Value == STATES.Endround) {
+            p.Spawns.Spawn();
+            p.Spawns.Despawn();
+            p.PopUp("Игра уже началась. Ждите конца игры");
+        } else p.Spawns.Spawn();
+    }
+    else {
+        p.Spawns.Spawn();
+        p.Spawns.Despawn();
+        p.PopUp("<size=45><B>Вы забанены!</B></size>\n<i>Считаете, что забанены не по делу? Пишите в Issue в репозитории на GitHub.</i>");
+    }
+});
+
+API.Players.OnPlayerConnected.Add(function (p) {
+    if (Blacklist.Value.search(p.Id) != -1) {
+        p.Spawns.Spawn();
+        p.Spawns.Despawn();
+        p.Properties.Get("banned").Value = true;
+    }
+    else {
+        p.Properties.Get("banned").Value = false;
+    }
+    JQUtils.SetTimeout(JoinToTeam, 5, p);
+});
+
+
+
+// Функции
+function JoinToTeam(p)
+{
     let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
         T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
     if (CT_Count != T_Count) {
@@ -132,4 +169,4 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
         else if (CT_Count > T_Count) Terrorists.Add(p);
     }
     else t.Add(p);
-});
+}
