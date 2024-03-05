@@ -133,7 +133,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
 });
 
 API.Players.OnPlayerConnected.Add(function (p) {
-    JoinToTeam(p);
+    JoinToTeam(p, Terrorists);
     JQUtils.pcall(() => {
         JoinToTeam(p);
         if (Blacklist.Value.search(p.Id) != -1) {
