@@ -65,7 +65,7 @@ globalThis.Basic = Basic;
 // Переменные
 let Properties = API.Properties.GetContext(), Timers = API.Timers.GetContext(), Ui = API.Ui.GetContext();
 let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist = Properties.Get("banned"), Bomb = Properties.Get("bomb"),
-    IsPlanted = Properties.Get("is_planted");
+    IsPlanted = Properties.Get("is_planted"), Round = Properties.Get("round");
 
 // Настройки
 API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
@@ -73,6 +73,7 @@ State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
+Round.Value = 0;
 
 // Создание команд
 API.Teams.OnAddTeam.Add(function (t) {
@@ -82,8 +83,6 @@ API.Teams.OnAddTeam.Add(function (t) {
 
 let CounterTerrorists = JQUtils.CreateTeam("ct", { name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.SteelBlue);
 let Terrorists = JQUtils.CreateTeam("t", { name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.BurlyWood)
-
-
 
 // Интерфейс
 API.LeaderBoard.PlayerLeaderBoardValues = [
@@ -156,12 +155,12 @@ API.Players.OnPlayerConnected.Add(function (p) {
     }, true);
 });
 
-/*API.Players.OnPlayerDisconnected.Add(function (p) {
+API.Players.OnPlayerDisconnected.Add(function (p) {
     if (State.Value == STATES.Round) {
         if (GetAlivePlayersCount(Terrorists) == 0 && !IsPlanted.Value) return EndRound(CounterTerrorists);
         if (GetAlivePlayersCount(CounterTerrorists) == 0) return EndRound(Terrorists);
     }
-});*/
+});
 
 API.Properties.OnPlayerProperty.Add(function (c, v) {
     if (State.Value != STATES.Clearing) {
@@ -198,7 +197,7 @@ API.Damage.OnDeath.Add(function (p) {
         p.Properties.Deaths.Value++;
         p.Properties.Get("defkit").Value = EMPTY;
         if (p.Properties.Get("bomb").Value) Bomb.Value = true;
-        p.Properties.Get("bomb").Value = false
+        p.Properties.Get("bomb").Value = EMPTY;
         p.Inventory.Main.Value = false;
         p.Inventory.Secondary.Value = false;
         p.Inventory.Explosive.Value = false;
@@ -206,6 +205,240 @@ API.Damage.OnDeath.Add(function (p) {
         p.Spawns.Despawn();
     }
 });
+
+// Зоны
+function t_HintReset(p, a) {
+    p.Ui.Hint.Reset();
+}
+
+JQUtils.CreateArea({
+    name: "main", tags: ["main"], color: ColorsLib.Colors.Crimson, enter: function (p, a) {
+        if (State.Value != STATES.Preround) return;
+        let prop = p.Properties.Get(`${a.Name}_accept`);
+        if (p.Inventory.Main.Value) return p.Ui.Hint.Value = "Основное оружие уже куплено";
+        if (prop.Value) {
+            if (p.Properties.Scores.Value >= MAIN_COST) {
+                p.Properties.Scores.Value -= MAIN_COST;
+                p.Ui.Hint.Value = "Вы купили основное оружие";
+                p.Inventory.Main.Value = true;
+            } else {
+                p.Ui.Hint.Value = `Недостаточно денег. Нужно еще ${MAIN_COST - p.Properties.Scores.Value}`;
+            }
+            return prop.Value = false;
+        } else {
+            p.Ui.Hint.Value = `Вы хотите купить основное оружие за ${MAIN_COST}\nВойдите в зону второй раз чтобы купить`;
+            return prop.Value = true;
+        }
+    }, exit: t_HintReset
+});
+
+AddArea({
+    name: "secondary", tags: ["secondary"], color: ColorsLib.Colors.DarkKhaki, enter: function (p, a) {
+        if (State.Value != STATES.Preround) return;
+        let prop = p.Properties.Get(`${a.Name}_accept`);
+        if (p.Inventory.Secondary.Value) return p.Ui.Hint.Value = "Вторичное оружие уже куплено";
+        if (prop.Value) {
+            if (p.Properties.Scores.Value >= SECONDARY_COST) {
+                p.Properties.Scores.Value -= SECONDARY_COST;
+                p.Ui.Hint.Value = "Вы купили вторичное оружие";
+                p.Inventory.Secondary.Value = true;
+            } else {
+                p.Ui.Hint.Value = `Недостаточно денег. Нужно еще ${SECONDARY_COST - p.Properties.Scores.Value}`;
+            }
+            return prop.Value = false;
+        } else {
+            p.Ui.Hint.Value = `Вы хотите купить вторичное оружие за ${SECONDARY_COST}\nВойдите в зону второй раз чтобы купить`;
+            return prop.Value = true;
+        }
+    }, exit: t_HintReset
+});
+
+AddArea({
+    name: "explosive", tags: ["explosive"], color: ColorsLib.Colors.Aquamarine, enter: function (p, a) {
+        if (State.Value != STATES.Preround) return;
+        let prop = p.Properties.Get(`${a.Name}_accept`);
+        if (p.Inventory.Explosive.Value) return p.Ui.Hint.Value = "Взрывчатка уже куплена";
+        if (prop.Value) {
+            if (p.Properties.Scores.Value >= EXPLOSIVE_COST) {
+                p.Properties.Scores.Value -= EXPLOSIVE_COST;
+                p.Ui.Hint.Value = "Вы купили взрывчатку";
+                p.Inventory.Explosive.Value = true;
+            } else {
+                p.Ui.Hint.Value = `Недостаточно денег. Нужно еще ${EXPLOSIVE_COST - p.Properties.Scores.Value}`;
+            }
+            return prop.Value = false;
+        } else {
+            p.Ui.Hint.Value = `Вы хотите купить взрывчатку за ${EXPLOSIVE_COST}\nВойдите в зону второй раз чтобы купить`;
+            return prop.Value = true;
+        }
+    }, exit: t_HintReset
+});
+
+AddArea({
+    name: "defkit", tags: ["defkit"], color: ColorsLib.Colors.Plum, enter: function (p, a) {
+        if (State.Value != STATES.Preround) return;
+        let prop = p.Properties.Get(`${a.Name}_accept`);
+        if (p.Properties.Get("defkit").Value == ENABLED) return p.Ui.Hint.Value = "Набор сапера уже куплен";
+        if (prop.Value) {
+            if (p.Properties.Scores.Value >= DEFUSEKIT_COST) {
+                p.Properties.Scores.Value -= DEFUSEKIT_COST;
+                p.Ui.Hint.Value = "Вы купили набор сапера";
+                p.Properties.Get("defkit").Value = ENABLED
+            } else {
+                p.Ui.Hint.Value = `Недостаточно денег. Нужно еще ${DEFUSEKIT_COST - p.Properties.Scores.Value}`;
+            }
+            return prop.Value = false;
+        } else {
+            p.Ui.Hint.Value = `Вы хотите купить набор сапера за ${DEFUSEKIT_COST}\nВойдите в зону второй раз чтобы купить`;
+            return prop.Value = true;
+        }
+    }, exit: t_HintReset
+});
+
+AddArea({
+    name: "helmet", tags: ["helmet"], color: ColorsLib.Colors.SteelBlue, enter: function (p, a) {
+        if (State.Value != STATES.Preround) return;
+        let prop = p.Properties.Get(`${a.Name}_accept`);
+        if (p.contextedProperties.MaxHp.Value >= HELMET_HP) return p.Ui.Hint.Value = "Шлем уже куплен";
+        if (prop.Value) {
+            if (p.Properties.Scores.Value >= HELMET_COST) {
+                p.Properties.Scores.Value -= HELMET_COST;
+                p.Ui.Hint.Value = "Вы купили шлем";
+                p.contextedProperties.MaxHp.Value = HELMET_HP;
+                p.Spawns.Spawn();
+            } else {
+                p.Ui.Hint.Value = `Недостаточно денег. Нужно еще ${HELMET_COST - p.Properties.Scores.Value}`;
+            }
+            return prop.Value = false;
+        } else {
+            p.Ui.Hint.Value = `Вы хотите купить шлем (130 хп) за ${HELMET_COST}\nВойдите в зону второй раз чтобы купить`;
+            return prop.Value = true;
+        }
+    }, exit: t_HintReset
+});
+
+AddArea({
+    name: "armour", tags: ["armour"], color: ColorsLib.Colors.BlueViolet, enter: function (p, a) {
+        if (State.Value != STATES.Preround) return;
+        let prop = p.Properties.Get(`${a.Name}_accept`);
+        if (p.contextedProperties.MaxHp.Value >= VEST_HP) return p.Ui.Hint.Value = "Бронежилет и шлем уже куплены";
+        if (prop.Value) {
+            if (p.Properties.Scores.Value >= VEST_COST) {
+                p.Properties.Scores.Value -= VEST_COST;
+                p.Ui.Hint.Value = "Вы купили бронежилет и шлем";
+                p.contextedProperties.MaxHp.Value = VEST_HP;
+                p.Spawns.Spawn();
+            } else {
+                p.Ui.Hint.Value = "Недостаточно денег. Нужно еще " + (VEST_COST - p.Properties.Scores.Value);
+            }
+            return prop.Value = false;
+        } else {
+            p.Ui.Hint.Value = "Вы хотите купить бронежилет и шлем (+" + VEST_HP + ") за " + VEST_COST + ".\nВойдите в зону второй раз чтобы купить";
+            return prop.Value = true;
+        }
+    }, exit: t_HintReset
+});
+
+AddArea({
+    name: "bomb", tags: ["bomb"], color: ColorsLib.Colors.Plum, enter: function (p, a) {
+        if (p.Team == CounterTerrorists) return;
+        if (Bomb.Value) {
+            if (p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "Бомба уже положена";
+            p.Properties.Get("bomb").Value = ENABLED;
+            Bomb.Value = false;
+            p.Ui.Hint.Value = "Вы взяли бомбу";
+        }
+        else {
+            if (p.Properties.Get("bomb").Value) {
+                p.Properties.Get("bomb").Value = EMPTY;
+                Bomb.Value = true;
+                p.Ui.Hint.Value = "Вы положили бомбу";
+            }
+            p.Ui.Hint.Value = "Бомбы нету!";
+        }
+    }, exit: t_HintReset
+});
+
+let plant = AddArea({
+    name: "plant", tags: ["_plant"], color: ColorsLib.Colors.Green, view: false, enter: function (p, a) {
+        if (!IsPlanted.Value && p.Team == Terrorists) {
+            if (State.Value != STATES.Round) return p.Ui.Hint.Value = "Место закладки бомбы";
+            if (!p.Properties.Get("bomb").Value != ENABLED) return p.Ui.Hint.Value = "У вас нет бомбы.";
+            p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "сек. в зоне чтобы заложить бомбу";
+            return p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
+        }
+        if (IsPlanted.Value && p.Team == CounterTerrorists && API.AreaViewService.GetContext().Get(a.Name).Color.r > 0) {
+            if (State.Value != STATES.Round) return p.Ui.Hint.Value = "Место разминирования бомбы";
+            let def_time = p.Properties.Get("defkit").Value ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
+            p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
+            p.Timers.Get("defuse" + a.Name).Restart(def_time);
+        }
+    }, exit: function (p, a) {
+        p.Timers.Get("defuse" + a.Name).Stop();
+        p.Timers.Get("plant" + a.Name).Stop();
+        t_HintReset(p, a);
+    }
+});
+
+// Таймеры
+MainTimer.OnTimer.Add(function () {
+    switch (State.Value) {
+        case STATES.Waiting:
+            StartWarmup();
+            break;
+        case STATES.Warmup:
+            WaitingRound();
+            break;
+        case STATES.Preround:
+            StartRound();
+            break;
+        case STATES.Round:
+            if (IsPlanted.Value) EndRound(Terrorists);
+            else EndRound(CounterTerrorists);
+            break;
+        case STATES.Endround:
+            if (Round.Value == ROUNDS / 2 && !Properties.Get("teams_changed").Value) {
+                MainTimer.Restart(3);
+                TeamChange();
+                Properties.Get("teams_changed").Value = true;
+                break;
+            }
+            WaitingRound();
+            break
+        case STATES.Endgame:
+            State.Value = STATES.Clearing;
+            API.Players.All.forEach((p) => { p.Properties.GetProperties().forEach((prop) => { prop.Value = null; }); });
+            MainTimer.Restart(10);
+            break;
+        case "clearing":
+            Game.RestartGame();
+            break;
+    }
+});
+
+API.Timers.OnPlayerTimer.Add(function (timer) {
+    if (timer.Id == "clear") return timer.Player.Ui.Hint.Reset();
+    if (!timer.Player.IsAlive) return;
+    if (timer.Id.slice(0, 5) == "plant") {
+        const area_name = timer.Id.replace("plant", "");
+        if (API.AreaViewService.GetContext().Get(area_name).Color.r > 0 || IsPlanted.Value || State.Value != STATES.Round) return;
+        Ui.Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
+        IsPlanted.Value = true;
+        MainTimer.Restart(BEFORE_PLANTING_TIME);
+        timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
+        timer.Player.Properties.Get("bomb").Value = EMPTY;
+        API.AreaViewService.GetContext().Get(area_name).Color = ColorsLib.Colors.Crimson;
+    }
+    if (timer.Id.slice(0, 6) == "defuse") {
+        const area_name = timer.Id.replace("defuse", "");
+        if (API.AreaViewService.GetContext().Get(area_name).Color.r == 0 || State.Value != STATES.Round) return;
+        IsPlanted.Value = false;
+        timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
+        API.AreaViewService.GetContext().Get(area_name).Color = ColorsLib.Colors.Green;
+        EndRound(CounterTerrorists);
+    }
+});
+
 
 // Функции
 function AnotherTeam(t) {
@@ -224,6 +457,16 @@ function JoinToTeam(p, t)
     else t.Add(p);
 }
 
+function AreasEnable(v) {
+    API.AreaViewService.GetContext().Get("main").Enable = v;
+    API.AreaViewService.GetContext().Get("secondary").Enable = v;
+    API.AreaViewService.GetContext().Get("explosive").Enable = v;
+    API.AreaViewService.GetContext().Get("defkit").Enable = v;
+    API.AreaViewService.GetContext().Get("armour").Enable = v;
+    API.AreaViewService.GetContext().Get("helmet").Enable = v;
+}
+    
+
 function BanPlayer(p) {
     p.Spawns.Spawn();
     p.Spawns.Despawn();
@@ -233,6 +476,156 @@ function BanPlayer(p) {
 
 function GetAlivePlayersCount(t) {
     let count = 0;
-    API.Players.All.forEach((p) => { if (p.Team == t && p.Spawns.IsSpawned && p.IsAlive) count++; });
+    API.Players.All.forEach((p) => { if (p.Team == t && p.Spawns.IsSpawned && p.IsAlive && !p.Properties.Get("banned").Value) count++; });
     return count;
+}
+
+function SpawnPlayers(clear) {
+    API.Spawns.GetContext().RespawnEnable = true;
+    API.Players.All.forEach((p) => {
+        if (p.Team != null && p.Properties.Get("banned").Value && !p.Properties.Get("banned").Value) p.Spawns.Spawn();
+    });
+}
+
+function BalanceTeams() {
+    let CT_Players = CounterTerrorists.Players, T_Players = Terrorists.Players;
+  
+    while (CT_Players.length - 1 > T_Players.length) {
+        Terrorists.Add(CT_Players[CT_Players.length - 1]);
+    }
+
+    while (T_Players.length - 1 > CT_Players.length) {
+        CounterTerrorists.Add(T_Players[T_Players.length - 1]);
+    }
+}
+
+function AddBombToRandom() {
+    if (t_team.Count == 0) return;
+    let T_Players = Terrorists.Players;
+    let countplr = Math.round(T_Players.length / 2);
+    if (countplr < 1) countplr = 1;
+    for (let i = 0; i < countplr; i++) {
+        let p = Players.GetByRoomId(T_Players[GetRandom(0, plrs.length - 1)]);
+        p.Properties.Get("bomb").Value = ENABLED;
+        p.Ui.Hint.Value = "Вы получили бомбу!";
+        p.Timers.Get("clear").Restart(15);
+    }
+}
+
+StartGame();
+function StartGame() {
+    API.Spawns.GetContext().RespawnEnable = false;
+    Ui.Hint.Value = "Загрузка режима";
+    API.Players.All.forEach((p) => {
+        if (Blacklist.Value.search(p.Id) != -1) BanPlayer(p);
+    });
+    MainTimer.Restart(LOADING_TIME);
+}
+
+function StartWarmup() {
+    State.Value = STATES.Warmup;
+    let plant_areas = API.AreaService.GetByTag("plant");
+    for (indx in plant_areas) {
+        let a = plant_areas[indx];
+        let e = a.Ranges.GetEnumerator();
+        while (e.moveNext()) {
+            let range = e.Current;
+            const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
+            let rnd_name = "";
+            for (let i = 0; i < 6; i++) {
+                rnd_name += letters[GetRandom(0, letters.length - 1)];
+            }
+            let rnd = API.AreaService.Get(rnd_name);
+            rnd.Tags.Add("_plant");
+            API.AreaViewService.GetContext().Get(rnd_name).Color = ColorsLib.Colors.Green;
+            API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
+            API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
+            API.rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
+        }
+        a.Tags.Clear();
+        a.Ranges.Clear();
+    }
+    API.Damage.GetContext().DamageIn.Value = true;
+    API.Spawns.GetContext().RespawnEnable = true;
+    SpawnPlayers();
+    API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Разминка</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+    MainTimer.Restart(WARMUP_TIME);
+}
+
+function WaitingRound() {
+    State.Value = STATES.Preround;
+
+    API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
+    API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
+
+    BalanceTeams();
+
+    API.Damage.GetContext().DamageIn.Value = false;
+    Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
+    API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+
+    AreasEnable(true);
+
+    API.Inventory.GetContext().Main.Value = false;
+    API.Inventory.GetContext().Secondary.Value = false;
+    API.Inventory.GetContext().Explosive.Value = false;
+
+    Bomb.Value = false;
+
+    const areas = API.AreaService.GetByTag("_plant");
+    for (let i = 0; i < areas.length; i++) {
+        API.AreaViewService.GetContext().Get(areas[i].Name).Color = ColorsLib.Colors.Green;
+    }
+
+    MainTimer.Restart(PRE_ROUND_TIME);
+
+    SpawnPlayers();
+    AddBombToRandom();
+}
+
+function StartRound() {
+    Terrorists.Properties.Get("hint").Value = `< Победы: ${Terrorists.Properties.Get("wins").Value} >\n\n< Живых: ${(GetAlivePlayersCount(Terrorists))} >`;
+    CounterTerrorists.Properties.Get("hint").Value = "< Победы: " + CounterTerrorists.Properties.Get("wins").Value + " >\n\n< Живых: " + (GetAlivePlayersCount(CounterTerrorists) || "-") + " >";
+
+    AreasEnable(false);
+
+    API.Damage.GetContext().DamageIn.Value = true;
+    State.Value = STATES.Round;
+    API.Spawns.GetContext().RespawnEnable = false;
+
+    Ui.Hint.Value = `Закладка бомбы.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
+    MainTimer.Restart(ROUND_TIME);
+
+    API.MapEditor.SetBlock(AreaService.Get("bd"), 0);
+    API.MapEditor.SetBlock(AreaService.Get("bd"), 0);
+}
+
+function EndRound(t) {
+    State.Value = STATES.Endround;
+    API.Damage.GetContext().DamageIn.Value = false;
+    Properties.Get("addedBomb").Value = false;
+    IsPlanted.Value = false;
+    MainTimer.Restart(AFTER_ROUND_TIME);
+    let aTeam = AnotherTeam(t);
+    Round.Value++;
+    Ui.GetContext().Hint.Value = t == CounterTerrorists ? "Победил спецназ" : "Победили террористы";
+    API.room.PopUp(`Закладка бомбы от just_qstn\n<size=50><i>${Ui.GetContext().Hint.Value}</i>`);
+    API.Players.All.forEach((p) => {
+        p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
+    })
+    t.Properties.Get("wins").Value++;
+    t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
+    if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
+    if (aTeam.Properties.Get("loses").Value < MAX_LOSS_BONUS) aTeam.Properties.Get("loses").Value++;
+
+    if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
+    if (Round.Value >= ROUNDS && CounterTerrorists.Properties.Get("wins").Value != Terrorists.Properties.Get("wins").Value) JQUtils.SetTimeout(EndGame, 10);
+}
+
+function EndGame() {
+    const Winner = CounterTerrorists.Properties.Get("wins").Value > Terrorists.Properties.Get("wins").Value ? CounterTerrorists : Terrorists;
+    API.room.PopUp(`Закладка бомбы от just_qstn\n<size=50><i>Победили ${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i>`);
+    Game.GameOver(Winner);
+    State.Value = STATES.Endgame;
+    MainTimer.Restart(END_TIME);
 }
