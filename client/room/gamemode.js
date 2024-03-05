@@ -74,6 +74,7 @@ Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
 Round.Value = 0;
+API.Spawns.GetContext().RespawnEnable = false;
 //API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
 
 // Создание команд
@@ -486,7 +487,7 @@ function GetAlivePlayersCount(t) {
 function SpawnPlayers(clear) {
     API.Spawns.GetContext().RespawnEnable = true;
     API.Players.All.forEach((p) => {
-        if (p.Team != null && p.Properties.Get("banned").Value && !p.Properties.Get("banned").Value) {
+        if (p.Team != null && !p.Properties.Get("banned").Value) {
             p.Spawns.Spawn();
         }
     });
