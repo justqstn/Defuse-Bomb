@@ -74,6 +74,7 @@ Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
 Round.Value = 0;
+I.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
 
 // Создание команд
 API.Teams.OnAddTeam.Add(function (t) {
@@ -523,29 +524,31 @@ function StartGame() {
 }
 
 function StartWarmup() {
-    State.Value = STATES.Warmup;
-    API.AreaService.GetByTag("plant").forEach((a) => {
-        a.Ranges.All.forEach((range) => {
-            const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
-            let rnd_name = "";
-            for (let i = 0; i < 6; i++) {
-                rnd_name += letters[GetRandom(0, letters.length - 1)];
-            }
-            let rnd = API.AreaService.Get(rnd_name);
-            rnd.Tags.Add("_plant");
-            API.AreaViewService.GetContext().Get(rnd_name).Color = ColorsLib.Colors.Green;
-            API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
-            API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
-            API.rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
-        })
-        a.Tags.Clear();
-        a.Ranges.Clear();
-    });
-    API.Damage.GetContext().DamageIn.Value = true;
-    API.Spawns.GetContext().RespawnEnable = true;
-    SpawnPlayers();
-    API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Разминка</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
-    MainTimer.Restart(WARMUP_TIME);
+    JQUtils.pcall(() => {
+        State.Value = STATES.Warmup;
+        API.AreaService.GetByTag("plant").forEach((a) => {
+            a.Ranges.All.forEach((range) => {
+                const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
+                let rnd_name = "";
+                for (let i = 0; i < 6; i++) {
+                    rnd_name += letters[GetRandom(0, letters.length - 1)];
+                }
+                let rnd = API.AreaService.Get(rnd_name);
+                rnd.Tags.Add("_plant");
+                API.AreaViewService.GetContext().Get(rnd_name).Color = ColorsLib.Colors.Green;
+                API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
+                API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
+                API.rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
+            })
+            a.Tags.Clear();
+            a.Ranges.Clear();
+        });
+        API.Damage.GetContext().DamageIn.Value = true;
+        API.Spawns.GetContext().RespawnEnable = true;
+        SpawnPlayers();
+        API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Разминка</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+        MainTimer.Restart(WARMUP_TIME);
+    }, true);
 }
 
 function WaitingRound() {
