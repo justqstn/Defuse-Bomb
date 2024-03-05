@@ -134,6 +134,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
 
 API.Players.OnPlayerConnected.Add(function (p) {
     JQUtils.pcall(() => {
+        Ui.Hint.Value = "мне похуй";
         if (Blacklist.Value.search(p.Id) != -1) {
             BanPlayer(p);
         }
