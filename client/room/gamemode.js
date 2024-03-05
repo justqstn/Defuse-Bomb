@@ -70,7 +70,7 @@ State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
 
 // Создание команд
-let CounterTerrosists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
+let CounterTerrorists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
 let Terrorists = JQUtils.CreateTeam("t", {name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.DarkKhaki)
 
 // Интерфейс
