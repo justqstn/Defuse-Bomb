@@ -541,7 +541,7 @@ function AddBombToRandom() {
     let countplr = Math.round(T_Players.length / 2);
     if (countplr < 1) countplr = 1;
     for (let i = 0; i < countplr; i++) {
-        let p = Players.GetByRoomId(T_Players[GetRandom(0, plrs.length - 1)]);
+        let p = API.Players.GetByRoomId(T_Players[GetRandom(0, plrs.length - 1)]);
         p.Properties.Get("bomb").Value = ENABLED;
         p.Ui.Hint.Value = "Вы получили бомбу!";
         p.Timers.Get("clear").Restart(15);
