@@ -485,7 +485,7 @@ function GetAlivePlayersCount(t) {
 
 function SpawnPlayers(clear) {
     API.Spawns.GetContext().RespawnEnable = true;
-    API.Teams.All.forEach((t) => {
+    API.Players.All.forEach((p) => {
         if (p.Team != null && p.Properties.Get("banned").Value && !p.Properties.Get("banned").Value) {
             p.Spawns.Spawn();
         }
