@@ -89,13 +89,22 @@ export function pcall(func, log) {
 Выполнение кода с задержкой
 Использовать аккуратно, может быть многозатратной операцией
 */
-export function SetTimeout(callback, s, ...params)
+export function SetTimeout(callback, s)
 {
     const timer = API.Timers.GetContext().Get(RandomString(6));
 
     function _timer()
     {
-        callback(...params);
+        switch(arguments.length)
+        {
+            case 2:
+                callback();
+                break;
+            case 3:
+                callback(arguments[2]);
+                break;
+        }
+        
         timer.Remove(_timer);
     }
     timer.OnTimer.Add(_timer);
