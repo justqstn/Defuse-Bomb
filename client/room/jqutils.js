@@ -1,173 +1,103 @@
+import * as API from 'pixel_combats/room';
 /*
-Закладка бомбы
-by just_qstn
+Генерация случайной строки
 */
 
-// Импорт модулей
-import * as Basic from 'pixel_combats/basic';
-import * as API from 'pixel_combats/room';
-import * as ColorsLib from './colorslib.js';
-import * as JQUtils from './jqutils.js';
-
-// Константы 
-const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955AAE64508B9"],
-    BANNED = "C3EB1387A99FC76EDAAA9FBB8CCA3CD90",
-    STATES = {
-        "Waiting": 0,
-        "Warmup": 1,
-        "Preround": 2,
-        "Round": 3,
-        "Endround": 4,
-        "ChangeTeams": 5,
-        "Endgame": 6,
-        "Clearing": 7
-    };
-
-// Конфигурация
-const
-    ROUNDS = API.GameMode.Parameters.GetBool("short_game") ? 16 : 30,
-    LOADING_TIME = 10, 					// время загрузки
-    WARMUP_TIME = 90, 					// время разминки
-    PRE_ROUND_TIME = 45, 				// время покупки снаряжения
-    ROUND_TIME = 150, 					// время раунда
-    AFTER_ROUND_TIME = 10, 				// время после раунда
-    END_TIME = 15, 						// время после игры
-    BEFORE_PLANTING_TIME = 60, 			// время после закладки бомбы
-    BOMB_PLANTING_TIME = 3, 			// время закладки бомбы
-    BOMB_DEFUSE_TIME = 7, 				// время разминирования бомбы без набора сапера
-    BOMB_DEFUSEKIT_TIME = 3, 			// время разминирования бомб с набором сапера
-    HELMET_HP = 130, 					// хп с шлемом
-    VEST_HP = 160,						// хп с бронежилетом и шлемом
-    SECONDARY_COST = 650, 				// стоимость вторичного оружия
-    MAIN_COST = 2850, 					// стоимость основного оружия
-    EXPLOSIVE_COST = 300, 				// стоимость взрывчатки
-    DEFUSEKIT_COST = 350, 				// стоимость набора сапера
-    HELMET_COST = 650, 					// стоимость шлема
-    VEST_COST = 1200, 					// стоимость бронежилета с шлемом
-    DEFAULT_MONEY = 1000, 				// сколько денег давать на спавне
-    MAX_MONEY = 6000, 					// максимальное количество денег
-    BOUNTY_WIN = 1500, 					// награда за победу
-    BOUNTY_LOSE = 800, 					// награда за поражение * лусбонус
-    BOUNTY_LOSE_BONUS = 500, 			// лусбонус (за каждое поражение он увеличивается на кол-во поражений)
-    BOUNTY_KILL = 250, 					// награда за убийство
-    BOUNTY_PLANT = 300, 				// награда за закладку бомбы
-    BOUNTY_DEFUSE = 500, 				// награда за разминирование
-    MAX_LOSS_BONUS = 5;					// максимальный лусбонус
-
-// Доступ к функциям и модулям из "терминала"
-globalThis.API = API;
-globalThis.JQUtils = JQUtils;
-globalThis.ColorsLib = ColorsLib;
-globalThis.Basic = Basic;
-
-// Переменные
-let Properties = API.Properties.GetContext(), Timers = API.Timers.GetContext(), Ui = API.Ui.GetContext();
-let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist = Properties.Get("banned");
-
-// Настройки
-API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
-State.Value = STATES.Waiting;
-Blacklist.Value = BANNED;
-
-// Создание команд
-let CounterTerrorists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
-let Terrorists = JQUtils.CreateTeam("t", {name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.DarkKhaki)
-
-// Интерфейс
-API.LeaderBoard.PlayerLeaderBoardValues = [
-    {
-        Value: "Kills",
-        DisplayName: "Убийства",
-        ShortDisplayName: "Убийства"
-    },
-    {
-        Value: "Deaths",
-        DisplayName: "Смерти",
-        ShortDisplayName: "Смерти"
-    },
-    {
-        Value: "Scores",
-        DisplayName: "Деньги",
-        ShortDisplayName: "Деньги"
-    },
-    {
-        Value: "bomb",
-        DisplayName: "Бомба",
-        ShortDisplayName: "Бомба"
-    },
-    {
-        Value: "defkit",
-        DisplayName: "Сапер",
-        ShortDisplayName: "Сапер"
+export function RandomString(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
     }
-];
+    return result;
+}
 
-API.LeaderBoard.PlayersWeightGetter.Set(function (p) {
-    return p.Properties.Get("Kills").Value;
-});
+/*
+Функция создания команды
+string tag - id/тег команды 
+object name - имя команды. 
+поля объекта: 
+  string name (название), 
+  string undername (текст под названием команды),
+  bool isPretty (нужно ли красивое название)
+{name: "Синие", undername: "Модуль от just_qstn", isPretty: true}
+number/Index - спавнпоинт. необязательный параметр
 
-Ui.TeamProp1.Value = { Team: "t", Prop: "hint" };
-Ui.TeamProp2.Value = { Team: "ct", Prop: "hint" };
-Ui.MainTimerId.Value = MainTimer.Id;
-
-// События
-API.Teams.OnRequestJoinTeam.Add(function (p, t) {
-    if (p.Team == null)
-    {
-        if (p.Properties.Get("banned").Value == null && Blacklist.Value.search(p.Id) != -1) {
-            p.Spawns.Spawn();
-            p.Spawns.Despawn();
-            p.Properties.Get("banned").Value = true;
-        }
-        else {
-            p.Properties.Scores.Value = DEFAULT_MONEY;
-            p.Properties.Get("bomb").Value = false;
-            p.Properties.Get("defkit").Value = false;
-        }
-    }
-    
-    JoinToTeam(p, t);
-});
-
-API.Teams.OnPlayerChangeTeam.Add(function (p) {
-    if (!p.Properties.Get("banned").Value)
-    {
-        if (State.Value == STATES.Round || State.Value == STATES.Endround) {
-            p.Spawns.Spawn();
-            p.Spawns.Despawn();
-            p.PopUp("Игра уже началась. Ждите конца игры");
-        } else p.Spawns.Spawn();
+ex: CreateTeam("1", {name: "Текст сверху", undername: "текст снизу", isPretty: true}, new Color(1, 0, 0, 0));
+*/
+export function CreateTeam(tag, name, color, spawnpoint) {
+    if (name.isPretty) {
+        API.Teams.Add(tag, `<i><B><size=36>${name.name[0]}</size><size=27>${name.name.slice(1)}</size></B>\n${name.undername}</i>`, color);
     }
     else {
-        p.Spawns.Spawn();
-        p.Spawns.Despawn();
-        p.PopUp("<size=45><B>Вы забанены!</B></size>\n<i>Считаете, что забанены не по делу? Пишите в Issue в репозитории на GitHub.</i>");
+        API.Teams.Add(tag, name.name, color);
     }
-});
 
-API.Players.OnPlayerConnected.Add(function (p) {
-    JQUtils.pcall(() => {
-        if (Blacklist.Value.search(p.Id) != -1) {
-            p.Spawns.Spawn();
-            p.Spawns.Despawn();
-            p.Properties.Get("banned").Value = true;
-        }
-        else {
-            p.Properties.Get("banned").Value = false;
-        }
-        JQUtils.SetTimeout(JoinToTeam, 5, p);
-    });
-});
+    let team = API.Teams.Get(tag);
+    if (spawnpoint) team.Spawns.SpawnPointsGroups.Add(spawnpoint);
+    return team;
+}
 
+/*
+Функция создания зоны
+object params - параметры зоны
+поля объекта:
+  string name: id зоны
+  string[] tags: массив тегов
+  Color color: цвет зоны
+  bool view: включен ли визуализатор. по умолчанию true
+  bool trigger: включен ли триггер. по умолчанию true 
+  function enter: функция, выполняющаяся при входе в зону
+  functiom exit: функция, выполняющаяся при выходе из зоны
+ex: CreateArea({name: "ex", tags: ["tag"], color: new Color(1, 1, 1, 0), enter: function(player, area) { player.Ui.Hint.Value = "вы вошли в зону"; } });
+*/
 
-// Функции
-function JoinToTeam(p, t = Terrorists)
+export function CreateArea(params) {
+    let t = API.AreaPlayerTriggerService.Get(params.name), v = API.AreaViewService.GetContext().Get(params.name);
+    v.Tags = params.tags;
+    t.Tags = params.tags;
+    v.Color = params.color;
+    v.Enable = params.view || true;
+    t.Enable = params.trigger || true;
+    if (params.enter) t.OnEnter.Add(params.enter);
+    if (params.exit) t.OnExit.Add(params.exit);
+    return { Trigger: t, View: t };
+}
+
+/*
+pcall - бертка для try catch
+Вернет 0 если нет ошибок, вернет 1 если есть
+Чтобы вам показало ошибку пишите параметр log true
+ex: pcall(function() { Basic.Msg.Show("Вызвано через защищенный вызов");});
+*/
+
+export function pcall(func, log) {
+    try {
+        func();
+    }
+    catch (e) {
+        if (log) API.room.PopUp(`Error!\nName: ${e.name}\nDescription:${e.message}\nStack:${e.stack}`);
+        return 1;
+    }
+    return 0;
+}
+
+/*
+Выполнение кода с задержкой
+Использовать аккуратно, может быть многозатратной операцией
+*/
+export function SetTimeout(callback, s, ...params)
 {
-    let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
-        T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
-    if (CT_Count != T_Count) {
-        if (CT_Count < T_Count) CounterTerrorists.Add(p);
-        else if (CT_Count > T_Count) Terrorists.Add(p);
+    const timer = API.Timers.GetContext().Get(RandomString(6));
+
+    function _timer()
+    {
+        callback(...params);
+        timer.Remove(_timer);
     }
-    else t.Add(p);
+    timer.OnTimer.Add(_timer);
+    timer.Restart(s);
 }
