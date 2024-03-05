@@ -548,7 +548,7 @@ function StartWarmup() {
         API.Damage.GetContext().DamageIn.Value = true;
         API.Spawns.GetContext().RespawnEnable = true;
         SpawnPlayers();
-        API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Разминка</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+        API.room.PopUp("<size=50>Закладка бомбы от just_qstn\n</size><i>Разминка</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
         MainTimer.Restart(WARMUP_TIME);
     }, true);
 }
@@ -563,7 +563,7 @@ function WaitingRound() {
 
     API.Damage.GetContext().DamageIn.Value = false;
     Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
-    API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+    API.room.PopUp("<size=50>Закладка бомбы от just_qstn\n</size><i>Покупайте снаряжение в зонах</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
 
     AreasEnable(true);
 
@@ -610,7 +610,7 @@ function EndRound(t) {
     let aTeam = AnotherTeam(t);
     Round.Value++;
     Ui.GetContext().Hint.Value = t == CounterTerrorists ? "Победил спецназ" : "Победили террористы";
-    API.room.PopUp(`Закладка бомбы от just_qstn\n<size=50><i>${Ui.GetContext().Hint.Value}</i>`);
+    API.room.PopUp(`<size=50>Закладка бомбы от just_qstn\n</size><i>${Ui.GetContext().Hint.Value}</i>`);
     API.Players.All.forEach((p) => {
         p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
     })
@@ -625,7 +625,7 @@ function EndRound(t) {
 
 function EndGame() {
     const Winner = CounterTerrorists.Properties.Get("wins").Value > Terrorists.Properties.Get("wins").Value ? CounterTerrorists : Terrorists;
-    API.room.PopUp(`Закладка бомбы от just_qstn\n<size=50><i>Победили ${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i>`);
+    API.room.PopUp(`<size=50>Закладка бомбы от just_qstn\n</size><i>Победили ${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i>`);
     Game.GameOver(Winner);
     State.Value = STATES.Endgame;
     MainTimer.Restart(END_TIME);
