@@ -155,12 +155,12 @@ API.Players.OnPlayerConnected.Add(function (p) {
     }, true);
 });
 
-API.Players.OnPlayerDisconnected.Add(function (p) {
-    /*if (State.Value == STATES.Round) {
+/*API.Players.OnPlayerDisconnected.Add(function (p) {
+    if (State.Value == STATES.Round) {
         if (GetAlivePlayersCount(Terrorists) == 0 && !IsPlanted.Value) return EndRound(CounterTerrorists);
         if (GetAlivePlayersCount(CounterTerrorists) == 0) return EndRound(Terrorists);
-    }*/
-});
+    }
+});*/
 
 API.Properties.OnPlayerProperty.Add(function (c, v) {
     if (State.Value != STATES.Clearing) {
