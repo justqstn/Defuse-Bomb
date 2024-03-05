@@ -442,6 +442,8 @@ API.Timers.OnPlayerTimer.Add(function (timer) {
 
 
 // Функции
+function GetRandom(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
 function AnotherTeam(t) {
     if (t == Terrorists) return CounterTerrorists;
     else return Terrorists;
