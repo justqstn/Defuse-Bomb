@@ -81,8 +81,8 @@ API.Teams.OnAddTeam.Add(function (t) {
     t.Properties.Get("wins").Value = 0;
 });
 
-let CounterTerrorists = JQUtils.CreateTeam("ct", { name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.SteelBlue);
-let Terrorists = JQUtils.CreateTeam("t", { name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.BurlyWood)
+let CounterTerrorists = JQUtils.CreateTeam("ct", { name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.SteelBlue, 1);
+let Terrorists = JQUtils.CreateTeam("t", { name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true }, ColorsLib.Colors.BurlyWood, 2)
 
 // Интерфейс
 API.LeaderBoard.PlayerLeaderBoardValues = [
@@ -524,12 +524,8 @@ function StartGame() {
 
 function StartWarmup() {
     State.Value = STATES.Warmup;
-    let plant_areas = API.AreaService.GetByTag("plant");
-    for (indx in plant_areas) {
-        let a = plant_areas[indx];
-        let e = a.Ranges.GetEnumerator();
-        while (e.moveNext()) {
-            let range = e.Current;
+    API.AreaService.GetByTag("plant").forEach((a) => {
+        a.Ranges.All.forEach((range) => {
             const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
             let rnd_name = "";
             for (let i = 0; i < 6; i++) {
@@ -541,10 +537,10 @@ function StartWarmup() {
             API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
             API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
             API.rnd.Ranges.Add({ Start: { x: range.Start.x, y: range.Start.y, z: range.Start.z }, End: { x: range.End.x, y: range.End.y, z: range.End.z } });
-        }
+        })
         a.Tags.Clear();
         a.Ranges.Clear();
-    }
+    });
     API.Damage.GetContext().DamageIn.Value = true;
     API.Spawns.GetContext().RespawnEnable = true;
     SpawnPlayers();
