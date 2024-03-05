@@ -232,7 +232,7 @@ JQUtils.CreateArea({
     }, exit: t_HintReset
 });
 
-AddArea({
+JQUtils.CreateArea({
     name: "secondary", tags: ["secondary"], color: ColorsLib.Colors.DarkKhaki, enter: function (p, a) {
         if (State.Value != STATES.Preround) return;
         let prop = p.Properties.Get(`${a.Name}_accept`);
@@ -253,7 +253,7 @@ AddArea({
     }, exit: t_HintReset
 });
 
-AddArea({
+JQUtils.CreateArea({
     name: "explosive", tags: ["explosive"], color: ColorsLib.Colors.Aquamarine, enter: function (p, a) {
         if (State.Value != STATES.Preround) return;
         let prop = p.Properties.Get(`${a.Name}_accept`);
@@ -274,7 +274,7 @@ AddArea({
     }, exit: t_HintReset
 });
 
-AddArea({
+JQUtils.CreateArea({
     name: "defkit", tags: ["defkit"], color: ColorsLib.Colors.Plum, enter: function (p, a) {
         if (State.Value != STATES.Preround) return;
         let prop = p.Properties.Get(`${a.Name}_accept`);
@@ -295,7 +295,7 @@ AddArea({
     }, exit: t_HintReset
 });
 
-AddArea({
+JQUtils.CreateArea({
     name: "helmet", tags: ["helmet"], color: ColorsLib.Colors.SteelBlue, enter: function (p, a) {
         if (State.Value != STATES.Preround) return;
         let prop = p.Properties.Get(`${a.Name}_accept`);
@@ -317,7 +317,7 @@ AddArea({
     }, exit: t_HintReset
 });
 
-AddArea({
+JQUtils.CreateArea({
     name: "armour", tags: ["armour"], color: ColorsLib.Colors.BlueViolet, enter: function (p, a) {
         if (State.Value != STATES.Preround) return;
         let prop = p.Properties.Get(`${a.Name}_accept`);
@@ -339,7 +339,7 @@ AddArea({
     }, exit: t_HintReset
 });
 
-AddArea({
+JQUtils.CreateArea({
     name: "bomb", tags: ["bomb"], color: ColorsLib.Colors.Plum, enter: function (p, a) {
         if (p.Team == CounterTerrorists) return;
         if (Bomb.Value) {
@@ -359,7 +359,7 @@ AddArea({
     }, exit: t_HintReset
 });
 
-let plant = AddArea({
+let plant = JQUtils.CreateArea({
     name: "plant", tags: ["_plant"], color: ColorsLib.Colors.Green, view: false, enter: function (p, a) {
         if (!IsPlanted.Value && p.Team == Terrorists) {
             if (State.Value != STATES.Round) return p.Ui.Hint.Value = "Место закладки бомбы";
