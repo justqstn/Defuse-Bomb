@@ -164,6 +164,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
             p.Properties.Scores.Value = DEFAULT_MONEY;
             p.Properties.Get("bomb").Value = EMPTY
             p.Properties.Get("defkit").Value = EMPTY;
+            p.Properties.Get("isconnected").Value = null;
         }
     }
     JoinToTeam(p, t);
@@ -182,6 +183,7 @@ API.Players.OnPlayerConnected.Add(function (p) {
         }
         else {
             p.Properties.Get("banned").Value = false;
+            p.Properties.Get("isconnected").Value = true;
         }
     }, true);
 });
@@ -517,7 +519,8 @@ function SpawnPlayers(clear) {
     API.Spawns.GetContext().Enable = true;
     API.Spawns.GetContext().RespawnEnable = true;
     API.Players.All.forEach((p) => {
-        if (p.Team != null && !p.Properties.Get("banned").Value) {
+        if (p.Team != null && !p.Properties.Get("banned").Value && p.Properties.Get("isconnected").Value == null) {
+            p.Properties.Get("isconnected").Value = null;
             p.Spawns.Spawn();
         }
     });
@@ -541,7 +544,7 @@ function AddBombToRandom() {
     let countplr = Math.round(T_Players.length / 2);
     if (countplr < 1) countplr = 1;
     for (let i = 0; i < countplr; i++) {
-        let p = API.Players.GetByRoomId(T_Players[GetRandom(0, T_Players.length - 1)]);
+        let p = API.Players.GetByRoomId(T_Players[GetRandom(0, T_Players.length - 1)].IdInRoom);
         p.Properties.Get("bomb").Value = ENABLED;
         p.Ui.Hint.Value = "Вы получили бомбу!";
         p.Timers.Get("clear").Restart(15);
