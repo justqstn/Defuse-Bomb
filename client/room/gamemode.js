@@ -22,7 +22,8 @@ const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955A
         "Endgame": 6,
         "Clearing": 7
     },
-    ENABLED = "✓";
+    ENABLED = "✓",
+    EMPTY = " ";
 
 // Конфигурация
 const
@@ -131,8 +132,8 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
         else {
             p.Properties.Get("banned").Value = false;
             p.Properties.Scores.Value = DEFAULT_MONEY;
-            p.Properties.Get("bomb").Value = "x"
-            p.Properties.Get("defkit").Value = "x";
+            p.Properties.Get("bomb").Value = EMPTY
+            p.Properties.Get("defkit").Value = EMPTY;
         }
     }
     JoinToTeam(p, t);
@@ -195,7 +196,7 @@ API.Damage.OnKill.Add(function (p, k) {
 API.Damage.OnDeath.Add(function (p) {
     if (State.Value == STATES.Round || State.Value == STATES.Endround) {
         p.Properties.Deaths.Value++;
-        p.Properties.Get("defkit").Value = "x";
+        p.Properties.Get("defkit").Value = EMPTY;
         if (p.Properties.Get("bomb").Value) Bomb.Value = true;
         p.Properties.Get("bomb").Value = false
         p.Inventory.Main.Value = false;
