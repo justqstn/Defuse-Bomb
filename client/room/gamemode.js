@@ -536,7 +536,7 @@ function BalanceTeams() {
 }
 
 function AddBombToRandom() {
-    if (t_team.Count == 0) return;
+    if (Terrorists.Count == 0) return;
     let T_Players = Terrorists.Players;
     let countplr = Math.round(T_Players.length / 2);
     if (countplr < 1) countplr = 1;
