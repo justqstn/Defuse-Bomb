@@ -645,7 +645,7 @@ function EndRound(t) {
         MainTimer.Restart(AFTER_ROUND_TIME);
         let aTeam = AnotherTeam(t);
         Round.Value++;
-        Ui.GetContext().Hint.Value = t == CounterTerrorists ? "В раунде победил спецназ" : "В раунде победили террористы";
+        Ui.Hint.Value = t == CounterTerrorists ? "В раунде победил спецназ" : "В раунде победили террористы";
         API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.GetContext().Hint.Value}</i></B>`);
         API.Players.All.forEach((p) => {
             p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
