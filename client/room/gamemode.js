@@ -396,7 +396,7 @@ let plant = JQUtils.CreateArea({
     name: "plant", tags: ["_plant"], color: ColorsLib.Colors.Green, view: false, enter: function (p, a) {
         if (!IsPlanted.Value && p.Team == Terrorists) {
             if (State.Value != STATES.Round) return p.Ui.Hint.Value = "Место закладки бомбы";
-            if (!p.Properties.Get("bomb").Value != ENABLED) return p.Ui.Hint.Value = "У вас нет бомбы.";
+            if (p.Properties.Get("bomb").Value != ENABLED) return p.Ui.Hint.Value = "У вас нет бомбы.";
             p.Ui.Hint.Value = "Ждите " + BOMB_PLANTING_TIME + "сек. в зоне чтобы заложить бомбу";
             return p.Timers.Get("plant" + a.Name).Restart(BOMB_PLANTING_TIME);
         }
@@ -588,36 +588,34 @@ function StartWarmup() {
 }
 
 function WaitingRound() {
-    JQUtils.pcall(() => {
-        State.Value = STATES.Preround;
+    State.Value = STATES.Preround;
 
-        API.MapEditor.SetBlock(API.AreaService.Get("bd"), 93);
-        API.MapEditor.SetBlock(API.AreaService.Get("bd"), 93);
+    API.MapEditor.SetBlock(API.AreaService.Get("bd"), 93);
+    API.MapEditor.SetBlock(API.AreaService.Get("bd"), 93);
 
-        BalanceTeams();
+    BalanceTeams();
 
-        API.Damage.GetContext().DamageIn.Value = false;
-        Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
-        API.room.PopUp("<B>Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах\n\n\n</i></size><size=30>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size></B>");
+    API.Damage.GetContext().DamageIn.Value = false;
+    Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
+    API.room.PopUp("<B>Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах\n\n\n</i></size><size=30>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size></B>");
 
-        AreasEnable(true);
+    AreasEnable(true);
 
-        API.Inventory.GetContext().Main.Value = false;
-        API.Inventory.GetContext().Secondary.Value = false;
-        API.Inventory.GetContext().Explosive.Value = false;
+    API.Inventory.GetContext().Main.Value = false;
+    API.Inventory.GetContext().Secondary.Value = false;
+    API.Inventory.GetContext().Explosive.Value = false;
 
-        Bomb.Value = false;
+    Bomb.Value = false;
 
-        const areas = API.AreaService.GetByTag("_plant");
-        for (let i = 0; i < areas.length; i++) {
-            API.AreaViewService.GetContext().Get(areas[i].Name).Color = ColorsLib.Colors.Green;
-        }
+    const areas = API.AreaService.GetByTag("_plant");
+    for (let i = 0; i < areas.length; i++) {
+        API.AreaViewService.GetContext().Get(areas[i].Name).Color = ColorsLib.Colors.Green;
+    }
 
-        MainTimer.Restart(PRE_ROUND_TIME);
+    MainTimer.Restart(PRE_ROUND_TIME);
 
-        SpawnPlayers();
-        AddBombToRandom();
-    }, true);
+    SpawnPlayers();
+    AddBombToRandom();
 
 }
 
@@ -639,25 +637,27 @@ function StartRound() {
 }
 
 function EndRound(t) {
-    State.Value = STATES.Endround;
-    API.Damage.GetContext().DamageIn.Value = false;
-    Properties.Get("addedBomb").Value = false;
-    IsPlanted.Value = false;
-    MainTimer.Restart(AFTER_ROUND_TIME);
-    let aTeam = AnotherTeam(t);
-    Round.Value++;
-    Ui.GetContext().Hint.Value = t == CounterTerrorists ? "В раунде победил спецназ" : "В раунде победили террористы";
-    API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.GetContext().Hint.Value}</i></B>`);
-    API.Players.All.forEach((p) => {
-        p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
-    })
-    t.Properties.Get("wins").Value++;
-    t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
-    if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
-    if (aTeam.Properties.Get("loses").Value < MAX_LOSS_BONUS) aTeam.Properties.Get("loses").Value++;
+    JQUtils.pcall(() => {
+        State.Value = STATES.Endround;
+        API.Damage.GetContext().DamageIn.Value = false;
+        Properties.Get("addedBomb").Value = false;
+        IsPlanted.Value = false;
+        MainTimer.Restart(AFTER_ROUND_TIME);
+        let aTeam = AnotherTeam(t);
+        Round.Value++;
+        Ui.GetContext().Hint.Value = t == CounterTerrorists ? "В раунде победил спецназ" : "В раунде победили террористы";
+        API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.GetContext().Hint.Value}</i></B>`);
+        API.Players.All.forEach((p) => {
+            p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
+        })
+        t.Properties.Get("wins").Value++;
+        t.Properties.Get("loses").Value = Math.round(t.Properties.Get("loses").Value / 2);
+        if (t.Properties.Get("loses").Value < 1) t.Properties.Get("loses").Value = 0;
+        if (aTeam.Properties.Get("loses").Value < MAX_LOSS_BONUS) aTeam.Properties.Get("loses").Value++;
 
-    if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
-    if (Round.Value >= ROUNDS && CounterTerrorists.Properties.Get("wins").Value != Terrorists.Properties.Get("wins").Value) JQUtils.SetTimeout(EndGame, 10);
+        if (t.Properties.Get("wins").Value > ROUNDS / 2) return EndGame();
+        if (Round.Value >= ROUNDS && CounterTerrorists.Properties.Get("wins").Value != Terrorists.Properties.Get("wins").Value) JQUtils.SetTimeout(EndGame, 10);
+    }, true)
 }
 
 function EndGame() {
