@@ -162,26 +162,7 @@ API.Players.OnPlayerConnected.Add(function (p) {
     }
 });*/
 
-API.Properties.OnPlayerProperty.Add(function (c, v) {
-    if (State.Value != STATES.Clearing) {
-        switch (v.Name) {
-            case "Scores":
-                if (v.Value > MAX_MONEY) v.Value = MAX_MONEY;
-                break;
-            case "Deaths":
-                c.Player.Team.Properties.Get("hint").Value = `< Победы: ${c.Player.Team.Properties.Get("wins").Value} >\n\n< Живых: ${(GetAlivePlayersCount(c.Player.Team))} >`;
-                if (!IsPlanted.Value && GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(AnotherTeam(c.Player.Team));
-                if (c.Player.Team == CounterTerrorists && IsPlanted.Value && GetAlivePlayersCount(c.Player.Team) <= 0) EndRound(Terrorists);
-                break;
-        }
-    }
-});
 
-API.Properties.OnTeamProperty.Add(function (c, v) {
-    if (v.Name != "hint") {
-        c.Team.Properties.Get("hint").Value =`< Победы: ${c.Team.Properties.Get("wins").Value} >\n\n< Живых: ${(GetAlivePlayersCount(c.Team))} >`;
-    }
-});
 
 API.Damage.OnKill.Add(function (p, k) {
     if (State.Value == STATES.Round || State.Value == STATES.Endround) {
