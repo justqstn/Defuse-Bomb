@@ -71,7 +71,7 @@ Blacklist.Value = BANNED;
 
 // Создание команд
 let CounterTerrorists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
-let Terrorists = JQUtils.CreateTeam("t", {name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.DarkKhaki)
+let Terrorists = JQUtils.CreateTeam("t", {name: "Террористы", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.BurlyWood)
 
 // Интерфейс
 API.LeaderBoard.PlayerLeaderBoardValues = [
@@ -133,6 +133,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
 });
 
 API.Players.OnPlayerConnected.Add(function (p) {
+    JoinToTeam(p);
     JQUtils.pcall(() => {
         JoinToTeam(p);
         if (Blacklist.Value.search(p.Id) != -1) {
