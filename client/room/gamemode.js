@@ -115,50 +115,34 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
     if (p.Team == null)
     {
         if (p.Properties.Get("banned").Value == null && Blacklist.Value.search(p.Id) != -1) {
-            p.Spawns.Spawn();
-            p.Spawns.Despawn();
-            p.Properties.Get("banned").Value = true;
+            BanPlayer(p);
         }
         else {
+            p.Properties.Get("banned").Value = false;
             p.Properties.Scores.Value = DEFAULT_MONEY;
             p.Properties.Get("bomb").Value = false;
             p.Properties.Get("defkit").Value = false;
         }
     }
-    
     JoinToTeam(p, t);
-});
-
-API.Teams.OnPlayerChangeTeam.Add(function (p) {
-    if (!p.Properties.Get("banned").Value)
-    {
-        if (State.Value == STATES.Round || State.Value == STATES.Endround) {
-            p.Spawns.Spawn();
-            p.Spawns.Despawn();
-            p.PopUp("Игра уже началась. Ждите конца игры");
-        } else p.Spawns.Spawn();
-    }
-    else {
+    if (p.Team == null && (State.Value == STATES.Round || State.Value == STATES.Endround)) {
         p.Spawns.Spawn();
         p.Spawns.Despawn();
-        p.PopUp("<size=45><B>Вы забанены!</B></size>\n<i>Считаете, что забанены не по делу? Пишите в Issue в репозитории на GitHub.</i>");
-    }
+        p.PopUp("Игра уже началась. Ждите конца игры");
+    } else p.Spawns.Spawn();
 });
 
 API.Players.OnPlayerConnected.Add(function (p) {
     JQUtils.pcall(() => {
         if (Blacklist.Value.search(p.Id) != -1) {
-            p.Spawns.Spawn();
-            p.Spawns.Despawn();
-            p.Properties.Get("banned").Value = true;
+            BanPlayer(p);
         }
         else {
             p.Properties.Get("banned").Value = false;
+            JoinToTeam(p);
         }
-        JQUtils.SetTimeout(JoinToTeam, 5, p);
     }, true);
 });
-
 
 // Функции
 function JoinToTeam(p, t = Terrorists)
@@ -170,4 +154,11 @@ function JoinToTeam(p, t = Terrorists)
         else if (CT_Count > T_Count) Terrorists.Add(p);
     }
     else t.Add(p);
+}
+
+function BanPlayer(p) {
+    p.Spawns.Spawn();
+    p.Spawns.Despawn();
+    p.Properties.Get("banned").Value = true;
+    p.PopUp("<size=45><B>Вы забанены!</B></size>\n<i>Считаете, что забанены не по делу? Пишите в Issue в репозитории на GitHub.</i>");
 }
