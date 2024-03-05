@@ -548,7 +548,7 @@ function StartWarmup() {
         API.Damage.GetContext().DamageIn.Value = true;
         API.Spawns.GetContext().RespawnEnable = true;
         SpawnPlayers();
-        API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Разминка</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></B></size>");
+        API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Разминка\n\n\n</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></B></size>");
         MainTimer.Restart(WARMUP_TIME);
     }, true);
 }
@@ -563,7 +563,7 @@ function WaitingRound() {
 
     API.Damage.GetContext().DamageIn.Value = false;
     Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
-    API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
+    API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах\n\n\n</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
 
     AreasEnable(true);
 
