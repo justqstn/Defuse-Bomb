@@ -79,7 +79,7 @@ export function pcall(func, log) {
         func();
     }
     catch (e) {
-        if (log) API.Ui.GetContext().Hint.Value = `Error!\nName: ${e.name}\nDescription:${e.message}\nStack:${e.stack}`;
+        if (log) API.room.PopUp(`Error!\nName: ${e.name}\nDescription:${e.message}\nStack:${e.stack}`);
         return 1;
     }
     return 0;
