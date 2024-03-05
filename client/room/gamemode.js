@@ -11,7 +11,7 @@ import * as JQUtils from './jqutils.js';
 
 // Константы 
 const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955AAE64508B9"],
-    BANNED = ["C3EB1387A99FC76ED", "AAA9FBB8CCA3CD90"],
+    BANNED = "C3EB1387A99FC76EDAAA9FBB8CCA3CD90",
     STATES = {
         "Waiting": 0,
         "Warmup": 1,
@@ -61,12 +61,13 @@ globalThis.ColorsLib = ColorsLib;
 globalThis.Basic = Basic;
 
 // Переменные
-let Properties = API.Properties.GetContext(), Timers = API.Timers.GetContext();
-let MainTimer = Timers.Get("main"), State = Properties.Get("state");
+let Properties = API.Properties.GetContext(), Timers = API.Timers.GetContext(), Ui = API.Ui.GetContext();
+let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist = Properties.Get("banned");
 
 // Настройки
 API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
 State.Value = STATES.Waiting;
+Blacklist.Value = banned;
 
 // Создание команд
 let CounterTerrosists = JQUtils.CreateTeam("ct", {name: "Спецназ", undername: "Закладка бомбы от just_qstn", isPretty: true}, ColorsLib.Colors.SteelBlue);
@@ -101,5 +102,36 @@ API.LeaderBoard.PlayerLeaderBoardValues = [
     }
 ];
 
-API.Ui.GetContext().TeamProp1.Value = { Team: "t", Prop: "hint" };
-API.Ui.GetContext().TeamProp2.Value = { Team: "ct", Prop: "hint" };
+API.LeaderBoard.PlayersWeightGetter.Set(function (p) {
+    return p.Properties.Get("Kills").Value;
+});
+
+Ui.TeamProp1.Value = { Team: "t", Prop: "hint" };
+Ui.TeamProp2.Value = { Team: "ct", Prop: "hint" };
+Ui.MainTimerId.Value = MainTimer.Id;
+
+// События
+Teams.OnRequestJoinTeam.Add(function (p, t) {
+    if (t == null)
+    {
+        if (Blacklist.Value.search(p.Id) != -1) {
+            p.Spawns.Spawn();
+            p.Spawns.Despawn();
+            p.Properties.Get("banned").Value = true;
+        }
+        else {
+            p.Properties.Scores.Value = DEFAULT_MONEY;
+            p.Properties.Get("bomb").Value = false;
+            p.Properties.Get("defkit").Value = false;
+        }
+    }
+    else {
+        let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
+            T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
+        if (CT_Count != T_Count) {
+            if (CT_Count < T_Count) CounterTerrorists.Add(p);
+            else if (CT_Count > T_Count) Terrorists.Add(p);
+        }
+        else t.Add(p);
+    }
+});
