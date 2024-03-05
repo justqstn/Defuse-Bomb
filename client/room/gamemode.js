@@ -559,62 +559,63 @@ function StartGame() {
 }
 
 function StartWarmup() {
-    JQUtils.pcall(() => {
-        State.Value = STATES.Warmup;
-        API.AreaService.GetByTag("plant").forEach((a) => {
-            a.Ranges.All.forEach((range) => {
-                const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
-                let rnd_name = "";
-                for (let i = 0; i < 6; i++) {
-                    rnd_name += letters[GetRandom(0, letters.length - 1)];
-                }
-                let rnd = API.AreaService.Get(rnd_name);
-                rnd.Tags.Add("_plant");
-                API.AreaViewService.GetContext().Get(rnd_name).Color = ColorsLib.Colors.Green;
-                API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
-                API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
-                rnd.Ranges.Add(new Basic.IndexRange(range.Start.x, range.Start.y, range.Start.z, range.End.x, range.End.y, range.End.z));
-            })
-            a.Tags.Clear();
-            a.Ranges.Clear();
-        });
-        API.Damage.GetContext().DamageIn.Value = true;
-        API.Spawns.GetContext().RespawnEnable = true;
-        SpawnPlayers();
-        API.room.PopUp("<B>Закладка бомбы от just_qstn\n<size=50><i>Разминка\n\n\n</i></size><size=30>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size></B>");
-        MainTimer.Restart(WARMUP_TIME);
-    }, true);
+    State.Value = STATES.Warmup;
+    API.AreaService.GetByTag("plant").forEach((a) => {
+        a.Ranges.All.forEach((range) => {
+            const letters = "qwertyuiopasdfghjklzxcvbnmm1234567890";
+            let rnd_name = "";
+            for (let i = 0; i < 6; i++) {
+                rnd_name += letters[GetRandom(0, letters.length - 1)];
+            }
+            let rnd = API.AreaService.Get(rnd_name);
+            rnd.Tags.Add("_plant");
+            API.AreaViewService.GetContext().Get(rnd_name).Color = ColorsLib.Colors.Green;
+            API.AreaViewService.GetContext().Get(rnd_name).Area = rnd;
+            API.AreaViewService.GetContext().Get(rnd_name).Enable = true;
+            rnd.Ranges.Add(new Basic.IndexRange(range.Start.x, range.Start.y, range.Start.z, range.End.x, range.End.y, range.End.z));
+        })
+        a.Tags.Clear();
+        a.Ranges.Clear();
+    });
+    API.Damage.GetContext().DamageIn.Value = true;
+    API.Spawns.GetContext().RespawnEnable = true;
+    SpawnPlayers();
+    API.room.PopUp("<B>Закладка бомбы от just_qstn\n<size=50><i>Разминка\n\n\n</i></size><size=30>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size></B>");
+    MainTimer.Restart(WARMUP_TIME);
 }
 
 function WaitingRound() {
-    State.Value = STATES.Preround;
+    JQUtils.pcall(() => {
+        State.Value = STATES.Preround;
 
-    API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
-    API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
+        API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
+        API.MapEditor.SetBlock(AreaService.Get("bd"), 93);
 
-    BalanceTeams();
+        BalanceTeams();
 
-    API.Damage.GetContext().DamageIn.Value = false;
-    Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
-    API.room.PopUp("<B>Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах\n\n\n</i></size><size=30>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size></B>");
+        API.Damage.GetContext().DamageIn.Value = false;
+        Ui.Hint.Value = `Закупка снаряжения.\nРаунд ${(Round.Value + 1)}/${ROUNDS}`;
+        API.room.PopUp("<B>Закладка бомбы от just_qstn\n<size=50><i>Покупайте снаряжение в зонах\n\n\n</i></size><size=30>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size></B>");
 
-    AreasEnable(true);
+        AreasEnable(true);
 
-    API.Inventory.GetContext().Main.Value = false;
-    API.Inventory.GetContext().Secondary.Value = false;
-    API.Inventory.GetContext().Explosive.Value = false;
+        API.Inventory.GetContext().Main.Value = false;
+        API.Inventory.GetContext().Secondary.Value = false;
+        API.Inventory.GetContext().Explosive.Value = false;
 
-    Bomb.Value = false;
+        Bomb.Value = false;
 
-    const areas = API.AreaService.GetByTag("_plant");
-    for (let i = 0; i < areas.length; i++) {
-        API.AreaViewService.GetContext().Get(areas[i].Name).Color = ColorsLib.Colors.Green;
-    }
+        const areas = API.AreaService.GetByTag("_plant");
+        for (let i = 0; i < areas.length; i++) {
+            API.AreaViewService.GetContext().Get(areas[i].Name).Color = ColorsLib.Colors.Green;
+        }
 
-    MainTimer.Restart(PRE_ROUND_TIME);
+        MainTimer.Restart(PRE_ROUND_TIME);
 
-    SpawnPlayers();
-    AddBombToRandom();
+        SpawnPlayers();
+        AddBombToRandom();
+    }, true);
+
 }
 
 function StartRound() {
