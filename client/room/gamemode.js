@@ -133,9 +133,8 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
 });
 
 API.Players.OnPlayerConnected.Add(function (p) {
-    JoinToTeam(p, Terrorists);
     JQUtils.pcall(() => {
-        JoinToTeam(p);
+        JoinToTeam(p, Terrorists);
         if (Blacklist.Value.search(p.Id) != -1) {
             BanPlayer(p);
         }
@@ -146,7 +145,7 @@ API.Players.OnPlayerConnected.Add(function (p) {
 });
 
 // Функции
-function JoinToTeam(p, t = Terrorists)
+function JoinToTeam(p, t)
 {
     let CT_Count = CounterTerrorists.Count - (p.Team == CounterTerrorists ? 1 : 0),
         T_Count = Terrorists.Count - (p.Team == Terrorists ? 1 : 0);
