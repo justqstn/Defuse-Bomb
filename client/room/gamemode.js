@@ -183,7 +183,7 @@ API.Properties.OnTeamProperty.Add(function (c, v) {
     }
 });
 
-Damage.OnKill.Add(function (p, k) {
+API.Damage.OnKill.Add(function (p, k) {
     if (State.Value == STATES.Round || State.Value == STATES.Endround) {
         if (k.Team != null && k.Team != p.Team) {
             p.Properties.Kills.Value++;
