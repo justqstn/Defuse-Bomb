@@ -31,10 +31,10 @@ const
     LOADING_TIME = 10, 					// время загрузки
     WARMUP_TIME = 10, 					// время разминки
     PRE_ROUND_TIME = 10, 				// время покупки снаряжения
-    ROUND_TIME = 40, 					// время раунда
+    ROUND_TIME = 30, 					// время раунда
     AFTER_ROUND_TIME = 10, 				// время после раунда
     END_TIME = 15, 						// время после игры
-    BEFORE_PLANTING_TIME = 11, 			// время после закладки бомбы
+    BEFORE_PLANTING_TIME = 5, 			// время после закладки бомбы
     BOMB_PLANTING_TIME = 3, 			// время закладки бомбы
     BOMB_DEFUSE_TIME = 7, 				// время разминирования бомбы без набора сапера
     BOMB_DEFUSEKIT_TIME = 3, 			// время разминирования бомб с набором сапера
@@ -162,7 +162,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
         else {
             p.Properties.Get("banned").Value = false;
             p.Properties.Scores.Value = DEFAULT_MONEY;
-            p.Properties.Get("bomb").Value = EMPTY
+            if (p.Properties.Get("bomb").Value == null) p.Properties.Get("bomb").Value = EMPTY
             p.Properties.Get("defkit").Value = EMPTY;
         }
     }
@@ -170,7 +170,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
     {
         p.Properties.Get("banned").Value = false;
         p.Properties.Scores.Value = DEFAULT_MONEY;
-        p.Properties.Get("bomb").Value = EMPTY
+        if (p.Properties.Get("bomb").Value == null) p.Properties.Get("bomb").Value = EMPTY
         p.Properties.Get("defkit").Value = EMPTY;
         p.Properties.Get("isconnected").Value = null;
     }
