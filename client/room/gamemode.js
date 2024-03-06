@@ -68,6 +68,7 @@ let MainTimer = Timers.Get("main"), State = Properties.Get("state"), Blacklist =
     IsPlanted = Properties.Get("is_planted"), Round = Properties.Get("round");
 
 // Настройки
+API.BreakGraph.BreakAll = false;
 API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
 State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
