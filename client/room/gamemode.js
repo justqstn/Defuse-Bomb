@@ -451,7 +451,7 @@ MainTimer.OnTimer.Add(function () {
             MainTimer.Restart(10);
             break;
         case "clearing":
-            Game.RestartGame();
+            API.Game.RestartGame();
             break;
     }
 });
@@ -563,6 +563,7 @@ function AddBombToRandom() {
 function TeamChange() {
     const T_Wins = Terrorists.Properties.Get("wins").Value, CT_Wins = CounterTerrorists.Properties.Get("wins").Value;
     API.Players.All.forEach((p) => {
+        p.Spawns.Despawn();
         p.Properties.Scores.Value = DEFAULT_MONEY;
         p.Inventory.Main.Value = false;
         p.Inventory.Secondary.Value = false;
