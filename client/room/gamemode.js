@@ -180,7 +180,7 @@ function tickrate() {
     }
 }
 
-JQUtils.JQTimer(tickrate, 0.01);
+JQUtils.JQTimer(tickrate, 0.05);
 
 // Новый механизм команд - теперь нужно просто создать зону с именем, начинающимся на /
 // пример имени: /Ban(1);
