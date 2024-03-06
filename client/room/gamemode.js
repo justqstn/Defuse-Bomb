@@ -34,7 +34,7 @@ const
     ROUND_TIME = 30, 					// время раунда
     AFTER_ROUND_TIME = 10, 				// время после раунда
     END_TIME = 15, 						// время после игры
-    BEFORE_PLANTING_TIME = 5, 			// время после закладки бомбы
+    BEFORE_PLANTING_TIME = 10, 			// время после закладки бомбы
     BOMB_PLANTING_TIME = 3, 			// время закладки бомбы
     BOMB_DEFUSE_TIME = 7, 				// время разминирования бомбы без набора сапера
     BOMB_DEFUSEKIT_TIME = 3, 			// время разминирования бомб с набором сапера
