@@ -672,7 +672,7 @@ function EndRound(t) {
         let aTeam = AnotherTeam(t);
         Round.Value++;
         Ui.Hint.Value = t == CounterTerrorists ? "В раунде победил спецназ" : "В раунде победили террористы";
-        API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.Hint.Value}</i></B>`);
+        API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.Hint.Value}</i></size></B>`);
         API.Players.All.forEach((p) => {
             p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
         })
@@ -688,8 +688,8 @@ function EndRound(t) {
 
 function EndGame() {
     const Winner = CounterTerrorists.Properties.Get("wins").Value > Terrorists.Properties.Get("wins").Value ? CounterTerrorists : Terrorists;
-    API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>Победили ${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i></B>`);
-    Game.GameOver(Winner);
+    API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>Победили ${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i></size></B>`);
+    Game.Game.GameOver(Winner);
     State.Value = STATES.Endgame;
     MainTimer.Restart(END_TIME);
 }
