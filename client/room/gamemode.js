@@ -558,6 +558,25 @@ function AddBombToRandom() {
     }
 }
 
+function TeamChange() {
+    const T_Wins = Terrorists.Properties.Get("wins").Value, CT_Wins = CounterTerrorists.Properties.Get("wins").Value;
+    API.Players.All.forEach((p) => {
+        p.Properties.Scores.Value = DEFAULT_MONEY;
+        p.Inventory.Main.Value = false;
+        p.Inventory.Secondary.Value = false;
+        p.Inventory.Explosive.Value = false;
+        p.contextedProperties.MaxHp.Value = 100;
+        p.Properties.Get("bomb").Value = EMPTY;
+        p.Properties.Get("defkit").Value = EMPTY;
+        if (p.Team == Terrorists) CounterTerrorists.Add(p);
+        else Terrorists.Add(p);
+    });
+    Terrorists.Properties.Get("wins").Value = CT_Wins;
+    Terrorists.Properties.Get("loses").Value = 0;
+    CounterTerrorists.Properties.Get("wins").Value = T_Wins;
+    CounterTerrorists.Properties.Get("loses").Value = 0;
+}
+
 StartGame();
 function StartGame() {
     API.Spawns.GetContext().RespawnEnable = false;
