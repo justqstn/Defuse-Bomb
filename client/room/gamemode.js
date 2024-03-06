@@ -31,10 +31,10 @@ const
     LOADING_TIME = 10, 					// время загрузки
     WARMUP_TIME = 10, 					// время разминки
     PRE_ROUND_TIME = 10, 				// время покупки снаряжения
-    ROUND_TIME = 30, 					// время раунда
+    ROUND_TIME = 40, 					// время раунда
     AFTER_ROUND_TIME = 10, 				// время после раунда
     END_TIME = 15, 						// время после игры
-    BEFORE_PLANTING_TIME = 5, 			// время после закладки бомбы
+    BEFORE_PLANTING_TIME = 11, 			// время после закладки бомбы
     BOMB_PLANTING_TIME = 3, 			// время закладки бомбы
     BOMB_DEFUSE_TIME = 7, 				// время разминирования бомбы без набора сапера
     BOMB_DEFUSEKIT_TIME = 3, 			// время разминирования бомб с набором сапера
@@ -409,7 +409,7 @@ let plant = JQUtils.CreateArea({
         }
         if (IsPlanted.Value && p.Team == CounterTerrorists && API.AreaViewService.GetContext().Get(a.Name).Color.r > 0) {
             if (State.Value != STATES.Round) return p.Ui.Hint.Value = "Место разминирования бомбы";
-            let def_time = p.Properties.Get("defkit").Value ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
+            let def_time = p.Properties.Get("defkit").Value == ENABLED ? BOMB_DEFUSEKIT_TIME : BOMB_DEFUSE_TIME;
             p.Ui.Hint.Value = "Ждите " + def_time + "сек. чтобы разминировать бомбу";
             p.Timers.Get("defuse" + a.Name).Restart(def_time);
         }
@@ -457,26 +457,28 @@ MainTimer.OnTimer.Add(function () {
 });
 
 API.Timers.OnPlayerTimer.Add(function (timer) {
-    if (timer.Id == "clear") return timer.Player.Ui.Hint.Reset();
-    if (!timer.Player.IsAlive) return;
-    if (timer.Id.slice(0, 5) == "plant") {
-        const area_name = timer.Id.replace("plant", "");
-        if (API.AreaViewService.GetContext().Get(area_name).Color.r > 0 || IsPlanted.Value || State.Value != STATES.Round) return;
-        Ui.Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
-        IsPlanted.Value = true;
-        MainTimer.Restart(BEFORE_PLANTING_TIME);
-        timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
-        timer.Player.Properties.Get("bomb").Value = EMPTY;
-        API.AreaViewService.GetContext().Get(area_name).Color = ColorsLib.Colors.Crimson;
-    }
-    if (timer.Id.slice(0, 6) == "defuse") {
-        const area_name = timer.Id.replace("defuse", "");
-        if (API.AreaViewService.GetContext().Get(area_name).Color.r == 0 || State.Value != STATES.Round) return;
-        IsPlanted.Value = false;
-        timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
-        API.AreaViewService.GetContext().Get(area_name).Color = ColorsLib.Colors.Green;
-        EndRound(CounterTerrorists);
-    }
+    JQUtils.pcall(() => {
+        if (timer.Id == "clear") return timer.Player.Ui.Hint.Reset();
+        if (!timer.Player.IsAlive) return;
+        if (timer.Id.slice(0, 5) == "plant") {
+            const area_name = timer.Id.replace("plant", "");
+            if (API.AreaViewService.GetContext().Get(area_name).Color.r > 0 || IsPlanted.Value || State.Value != STATES.Round) return;
+            Ui.Hint.Value = "Бомба заложена. Спецназ должен разминировать красную зону.";
+            IsPlanted.Value = true;
+            MainTimer.Restart(BEFORE_PLANTING_TIME);
+            timer.Player.Properties.Scores.Value += BOUNTY_PLANT;
+            timer.Player.Properties.Get("bomb").Value = EMPTY;
+            API.AreaViewService.GetContext().Get(area_name).Color = ColorsLib.Colors.Crimson;
+        }
+        if (timer.Id.slice(0, 6) == "defuse") {
+            const area_name = timer.Id.replace("defuse", "");
+            if (API.AreaViewService.GetContext().Get(area_name).Color.r == 0 || State.Value != STATES.Round) return;
+            IsPlanted.Value = false;
+            timer.Player.Properties.Scores.Value += BOUNTY_DEFUSE;
+            API.AreaViewService.GetContext().Get(area_name).Color = ColorsLib.Colors.Green;
+            EndRound(CounterTerrorists);
+        }
+    }, true)
 });
 
 
@@ -688,8 +690,8 @@ function EndRound(t) {
 
 function EndGame() {
     const Winner = CounterTerrorists.Properties.Get("wins").Value > Terrorists.Properties.Get("wins").Value ? CounterTerrorists : Terrorists;
-    API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>Победили ${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i></size></B>`);
-    Game.Game.GameOver(Winner);
+    API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Winner == CounterTerrorists ? "Победил спецназ" : "Победили террористы"}</i></size></B>`);
+    API.Game.GameOver(Winner);
     State.Value = STATES.Endgame;
     MainTimer.Restart(END_TIME);
 }
