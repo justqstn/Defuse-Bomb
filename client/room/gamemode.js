@@ -34,7 +34,7 @@ const
     ROUND_TIME = 30, 					// время раунда
     AFTER_ROUND_TIME = 10, 				// время после раунда
     END_TIME = 15, 						// время после игры
-    BEFORE_PLANTING_TIME = 10, 			// время после закладки бомбы
+    BEFORE_PLANTING_TIME = 5, 			// время после закладки бомбы
     BOMB_PLANTING_TIME = 3, 			// время закладки бомбы
     BOMB_DEFUSE_TIME = 7, 				// время разминирования бомбы без набора сапера
     BOMB_DEFUSEKIT_TIME = 3, 			// время разминирования бомб с набором сапера
@@ -164,8 +164,15 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
             p.Properties.Scores.Value = DEFAULT_MONEY;
             p.Properties.Get("bomb").Value = EMPTY
             p.Properties.Get("defkit").Value = EMPTY;
-            p.Properties.Get("isconnected").Value = null;
         }
+    }
+    if (p.Properties.Get("isconnected").Value)
+    {
+        p.Properties.Get("banned").Value = false;
+        p.Properties.Scores.Value = DEFAULT_MONEY;
+        p.Properties.Get("bomb").Value = EMPTY
+        p.Properties.Get("defkit").Value = EMPTY;
+        p.Properties.Get("isconnected").Value = null;
     }
     JoinToTeam(p, t);
     if (!p.Spawns.IsSpawned && (State.Value == STATES.Round || State.Value == STATES.Endround)) {
@@ -646,7 +653,7 @@ function EndRound(t) {
         let aTeam = AnotherTeam(t);
         Round.Value++;
         Ui.Hint.Value = t == CounterTerrorists ? "В раунде победил спецназ" : "В раунде победили террористы";
-        API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.GetContext().Hint.Value}</i></B>`);
+        API.room.PopUp(`<B>Закладка бомбы от just_qstn\n<size=50><i>${Ui.Hint.Value}</i></B>`);
         API.Players.All.forEach((p) => {
             p.Properties.Scores.Value += p.Team == t ? BOUNTY_WIN : BOUNTY_LOSE + (BOUNTY_LOSE_BONUS * aTeam.Properties.Get("loses").Value);
         })
