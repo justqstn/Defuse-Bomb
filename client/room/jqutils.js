@@ -89,7 +89,7 @@ export function pcall(func, log = true) {
 Выполнение кода с задержкой
 Использовать аккуратно, может быть многозатратной операцией
 */
-export function SetTimeout(callback, s)
+export function SetTimeout(callback, interval)
 {
     const timer = API.Timers.GetContext().Get(RandomString(6));
 
@@ -100,5 +100,30 @@ export function SetTimeout(callback, s)
         timer.Remove(_timer);
     }
     timer.OnTimer.Add(_timer);
-    timer.Restart(s);
+    timer.Restart(interval);
+}
+
+
+/*
+Создание бесконечного таймера с любой задержкой.
+Внимание, включается через одну секунду!
+Если интервал меньше единицы, то желательно делать его кратным двойке (потому что я так сказал), а также
+не делать тысячные и так далее разряды.
+Работает сразу после создания.
+*/
+
+export function JQTimer(callback, interval)
+{
+    const timer = API.Timers.GetContext().Get(RandomString(6));
+    if (interval < 1) {
+        for (let i = 1 / interval; i-=1;)
+        {
+            timer.OnTimer.Add(callback);
+            timer.RestartLoop(i + interval);
+        }
+    } 
+    else {
+        timer.OnTimer.Add(callback);
+        timer.RestartLoop(interval);
+    }
 }
