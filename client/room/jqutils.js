@@ -114,16 +114,18 @@ export function SetTimeout(callback, interval)
 
 export function JQTimer(callback, interval)
 {
-    const timer = API.Timers.GetContext().Get(RandomString(6));
     if (interval < 1) {
-        for (let i = 1 / interval; i-=1;)
+        for (let i = 0; i < 1; i += interval)
         {
+            const timer = API.Timers.GetContext().Get(RandomString(6));
             timer.OnTimer.Add(callback);
-            timer.RestartLoop(i + interval);
+            timer.RestartLoop(1 + i);
         }
     } 
     else {
+        const timer = API.Timers.GetContext().Get(RandomString(6));
         timer.OnTimer.Add(callback);
         timer.RestartLoop(interval);
+        return timer;
     }
 }
