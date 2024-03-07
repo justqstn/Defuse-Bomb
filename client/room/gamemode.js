@@ -354,18 +354,18 @@ JQUtils.CreateArea({
     name: "bomb", tags: ["bomb"], color: ColorsLib.Colors.Plum, enter: function (p, a) {
         if (p.Team == CounterTerrorists) return;
         if (Bomb.Value) {
-            if (p.Properties.Get("bomb").Value) return p.Ui.Hint.Value = "Бомба уже положена";
+            if (p.Properties.Get("bomb").Value == ENABLED) return p.Ui.Hint.Value = "Бомба уже положена";
             p.Properties.Get("bomb").Value = ENABLED;
             Bomb.Value = false;
             p.Ui.Hint.Value = "Вы взяли бомбу";
         }
         else {
-            if (p.Properties.Get("bomb").Value) {
+            if (p.Properties.Get("bomb").Value == ENABLED) {
                 p.Properties.Get("bomb").Value = EMPTY;
                 Bomb.Value = true;
                 p.Ui.Hint.Value = "Вы положили бомбу";
             }
-            p.Ui.Hint.Value = "Бомбы нету!";
+            else p.Ui.Hint.Value = "Бомбы нету!";
         }
     }, exit: t_HintReset
 });
