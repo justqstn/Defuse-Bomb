@@ -73,6 +73,7 @@ State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
+API.BreackGraph.Damage = false;
 Round.Value = 0;
 API.Spawns.GetContext().Enable = false;
 //API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
