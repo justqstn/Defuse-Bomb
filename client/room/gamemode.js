@@ -11,7 +11,7 @@ import * as JQUtils from './jqutils.js';
 
 // Константы 
 const ADMIN = ["9DE9DFD7D1F5C16","AEC76560AA6B5750","BACDC54C07D66B94A","2F1955AAE64508B9"],
-    BANNED = "C3EB1387A99FC76EDAAA9FBB8CCA3CD90",
+    BANNED = ["C3EB1387A99FC76ED", "AAA9FBB8CCA3CD90", "441F8D02C2DD6494", "177649F2EFBB14D7", "12EC16F532498F3F", "17F0A51417541302"],
     STATES = {
         "Waiting": 0,
         "Warmup": 1,
@@ -73,7 +73,6 @@ State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
 Bomb.Value = false;
 IsPlanted.Value = false;
-API.BreackGraph.Damage = false;
 Round.Value = 0;
 API.Spawns.GetContext().Enable = false;
 //API.room.PopUp("Закладка бомбы от just_qstn\n<size=50><i>Приятной игры!</i></size><size=30><B>Запрещенные оружия: Катана, СВД, ВСС, РПГ, Мак-11 (пистолет), РПК-74.\n<color=red>ИСПОЛЬЗОВАНИЕ ЗАПРЕЩЕННЫХ ОРУЖИЙ КАРАЕТСЯ БАНОМ!</color></size>");
@@ -128,7 +127,7 @@ Ui.MainTimerId.Value = MainTimer.Id;
 API.Teams.OnRequestJoinTeam.Add(function (p, t) {
     if (p.Properties.Get("banned").Value == null)
     {
-        if (Blacklist.Value.search(p.Id) != -1) {
+        if (Blacklist.Value.includes(p.Id)) {
             BanPlayer(p);
         }
         else {
@@ -157,7 +156,7 @@ API.Teams.OnRequestJoinTeam.Add(function (p, t) {
 API.Players.OnPlayerConnected.Add(function (p) {
     JQUtils.pcall(() => {
         JoinToTeam(p, Terrorists);
-        if (Blacklist.Value.search(p.Id) != -1) {
+        if (Blacklist.Value.includes(p.Id)) {
             BanPlayer(p);
         }
         else {
@@ -509,12 +508,15 @@ function SpawnPlayers(clear) {
 
 function BalanceTeams() {
     let CT_Players = CounterTerrorists.Players, T_Players = Terrorists.Players;
+    let CT_Count = CT_Players.length, T_Count = T_Players.length;
   
-    while (CT_Players.length - 1 > T_Players.length) {
+    while (CT_Count - 1 > T_Count) {
+        CT_Count--;
         Terrorists.Add(CT_Players[CT_Players.length - 1]);
     }
 
-    while (T_Players.length - 1 > CT_Players.length) {
+    while (T_Count - 1 > CT_Count) {
+        T_Count--;
         CounterTerrorists.Add(T_Players[T_Players.length - 1]);
     }
 }
@@ -558,7 +560,9 @@ function StartGame() {
     API.Spawns.GetContext().RespawnEnable = false;
     Ui.Hint.Value = "Загрузка режима";
     API.Players.All.forEach((p) => {
-        if (Blacklist.Value.search(p.Id) != -1) BanPlayer(p);
+        if (Blacklist.Value.includes(p.Id)) {
+            BanPlayer(p);
+        }
     });
     MainTimer.Restart(LOADING_TIME);
 }
