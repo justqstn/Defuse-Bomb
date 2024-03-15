@@ -72,6 +72,7 @@ API.Map.Rotation = API.GameMode.Parameters.GetBool("MapRotation");
 State.Value = STATES.Waiting;
 Blacklist.Value = BANNED;
 Bomb.Value = false;
+API.BreackGraph.Damage = false;
 IsPlanted.Value = false;
 Round.Value = 0;
 API.Spawns.GetContext().Enable = false;
