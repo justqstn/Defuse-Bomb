@@ -1,6 +1,6 @@
 {
   "Name": "<B><color=#FFE4B5>Закладка</color> <color=#B0E0E6>бомбы</color><i> (API 2.0)</i></B>",
-  "Description": "<B>v1.1. <color=red>ВНИМАТЕЛЬНО ЧИТАЙТЕ ПРАВИЛА В ИГРЕ!</color> Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
+  "Description": "<B>v1.1.1 (фиксы) <color=red>ВНИМАТЕЛЬНО ЧИТАЙТЕ ПРАВИЛА В ИГРЕ!</color> Режим от just_qstn.</B>\nЗакладка бомбы прямиком из CS:GO!",
   "StartClientVersion": 510,
   "MapFilter": {
     "IsBlank": false,
